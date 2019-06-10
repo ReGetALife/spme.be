@@ -30,18 +30,22 @@ public class DemoController {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
             System.out.println("session未保存，从zosmf获取token并保存至session。");
 
             //获取zomsmf地址
-            ZOSMF_Address=account.get("address");
+            ZOSMF_Address = account.get("address");
+            //获取登录账户名
+            ZOSMF_Account = account.get("account");
             //禁用ssl证书校验
             CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
             HttpComponentsClientHttpRequestFactory requestFactory
                     = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //访问zosmf获取jsessionid
-            String zosmfUrlOverHttps = "https://"+ZOSMF_Address.toString()+"/zosmf/";
+            String zosmfUrlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/";
             HttpHeaders httpHeaders = new RestTemplate(requestFactory).headForHeaders(zosmfUrlOverHttps);
             List<String> setCookie = httpHeaders.get("Set-Cookie");
             if (setCookie != null) {
@@ -50,7 +54,7 @@ public class DemoController {
                 System.out.println("header中没有获取到set-cookie信息");
             }
             //访问zosmf获取token
-            String loginUrlOverHttps = zosmfUrlOverHttps+"LoginServlet";
+            String loginUrlOverHttps = zosmfUrlOverHttps + "LoginServlet";
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -72,6 +76,7 @@ public class DemoController {
             session.setAttribute("ZOSMF_JSESSIONID", ZOSMF_JSESSIONID);
             session.setAttribute("ZOSMF_LtpaToken2", ZOSMF_LtpaToken2);
             session.setAttribute("ZOSMF_Address", ZOSMF_Address);
+            session.setAttribute("ZOSMF_Account", ZOSMF_Account);
         } else {
             System.out.println("session已经存在");
         }
@@ -82,8 +87,23 @@ public class DemoController {
     }
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
-    @RequestMapping(value = "/logoff",method = RequestMethod.DELETE)
-    public ResponseEntity<String> logout(HttpSession session){
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public ResponseEntity<String> loginInfo(HttpSession session) {
+        //获取session
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            return ResponseEntity.status(401).body("unauthorized");
+        } else {
+            return ResponseEntity.ok(ZOSMF_Account.toString().toUpperCase());
+        }
+    }
+
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/logoff", method = RequestMethod.DELETE)
+    public ResponseEntity<String> logout(HttpSession session) {
         session.removeAttribute("ZOSMF_JSESSIONID");
         session.removeAttribute("ZOSMF_LtpaToken2");
         session.removeAttribute("ZOSMF_Address");
@@ -108,7 +128,7 @@ public class DemoController {
                     = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //提交jcl的zosmf地址
-            String urlOverHttps = "https://"+ZOSMF_Address.toString()+"/zosmf/restjobs/jobs";
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs";
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
@@ -135,7 +155,7 @@ public class DemoController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://"+ZOSMF_Address.toString()+"/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
                 //查询结果的request
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
