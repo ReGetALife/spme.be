@@ -1,9 +1,11 @@
 package com.example.demo;
 
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
+
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -252,4 +255,180 @@ public class DemoController {
         }
 
     }
+
+    //获取数据集信息
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/getdataset", method = RequestMethod.GET)
+    public ResponseEntity<String> getDataset(HttpSession session) {
+        //获取session
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            return ResponseEntity.status(401).body("unauthorized");
+        } else {
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/ST025.CUSFILE";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
+            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
+            HttpComponentsClientHttpRequestFactory requestFactory
+                    = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setHttpClient(httpClient);
+
+            HttpEntity<String> requestQur = new HttpEntity<>(headers);
+
+            ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
+            return ResponseEntity.ok(result.getBody());
+        }
+    }
+
+    //建数据集
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/createDataset", method = RequestMethod.GET)
+    public ResponseEntity<String> createDataset(HttpSession session) {
+        //获取session
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            return ResponseEntity.status(401).body("unauthorized");
+        } else {
+            //禁用ssl证书校验
+            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
+            HttpComponentsClientHttpRequestFactory requestFactory
+                    = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setHttpClient(httpClient);
+            //提交jcl的zosmf地址
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/ST025.TEST123";
+            //设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
+            JSONObject object = new JSONObject();
+            object.put("volser", "BYWK00");
+            object.put("unit", "3390");
+            object.put("dsorg", "PS");
+            object.put("alcunit", "TRK");
+            object.put("primary", 10);
+            object.put("secondary", 5);
+            object.put("avgblk", 500);
+            object.put("recfm", "FB");
+            object.put("blksize", 400);
+            object.put("lrecl", 80);
+            //request
+            HttpEntity<JSONObject> request = new HttpEntity<>(object, headers);
+            ResponseEntity<String> response = new RestTemplate(requestFactory).postForEntity(urlOverHttps, request, String.class);
+            return ResponseEntity.ok(response.getBody());
+        }
+    }
+
+    //写文件
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/writeDataset", method = RequestMethod.GET)
+    public ResponseEntity<String> writeDataset(HttpSession session) {
+        //获取session
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            return ResponseEntity.status(401).body("unauthorized");
+        } else {
+            //禁用ssl证书校验
+            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
+            HttpComponentsClientHttpRequestFactory requestFactory
+                    = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setHttpClient(httpClient);
+            //提交jcl的zosmf地址
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/ST025.TEST123";
+            //设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+ //           headers.setCh
+//            headers.set("Accept-Charset", "utf-8");
+            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
+            String line1 = "//RACFTRY JOB CLASS=A,MSGLEVEL=(1,1),MSGCLASS=H,";
+            String line2 = "// TIME=1                                       ";
+            String line3 = "//SEND EXEC PGM=IKJEFT01                        ";
+            String line4 = "//SYSPRINT DD DUMMY                             ";
+            String line5 = "//SYSTSPRT DD SYSOUT=*                          ";
+            String line6 = "//SYSTSIN  DD *                                 ";
+            String line7 = "  ";
+            String line8 = "/*                                              ";
+            String allLines = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", line1, line2, line3, line4, line5, line6, line7, line8);
+            //提交jcl的request
+         //   HttpEntity<String> request = new HttpEntity<>(allLines, headers);
+         //   ResponseEntity<String> response = new RestTemplate(requestFactory).postForEntity(urlOverHttps, request, String.class);
+            HttpEntity<String> requestSub = new HttpEntity<>(allLines, headers);
+            ResponseEntity<String> responseSub = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.PUT, requestSub, String.class);
+            return ResponseEntity.ok(responseSub.getBody());
+        }
+
+    }
+
+    //将rexx封装在jcl中提交，并查看结果
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/exRexx", method = RequestMethod.GET)
+    public ResponseEntity<String> jobCommand(HttpSession session) {
+        //获取session数据
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
+            //没有token信息，授权失败
+            return ResponseEntity.status(401).body("unauthorized");
+        } else {//把racf命令包装成jcl执行
+            //禁用ssl证书校验
+            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
+            HttpComponentsClientHttpRequestFactory requestFactory
+                    = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setHttpClient(httpClient);
+            //提交jcl的zosmf地址
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs";
+            //设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
+            //添加body中的text
+            String line1 = "//REXX JOB CLASS=A,MSGLEVEL=(1,1),MSGCLASS=H,";
+            String line2 = "// TIME=1                                       ";
+            String line3 = "//REXX EXEC PGM=IKJEFT01                        ";
+            String line4 = "//SYSTSPRT DD SYSOUT=*                          ";
+            String line5 = "//SYSEXEC DD DSN=ST025.REXX.LIB,DISP=SHR       ";
+            String line6 = "//SYSTSIN  DD *                                 ";
+            String line7 = "    %REXX1                                      ";
+            String line8 = "/*                                              ";
+            String allLines = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", line1, line2, line3, line4, line5, line6,line7 ,line8);
+            //提交jcl的request
+            HttpEntity<String> requestSub = new HttpEntity<>(allLines, headers);
+            ResponseEntity<JobInfo> responseSub = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.PUT, requestSub, JobInfo.class);
+
+            //每隔100毫秒查看一次作业结果，等待两秒
+            for (int i = 0; i < 20; i++) {
+                try {
+                    Thread.currentThread().sleep(100);//毫秒
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+                //查询执行状态的地址
+                urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                //查询结果的request
+                HttpEntity<String> requestQur = new HttpEntity<>(headers);
+                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
+                //判断作业状态
+                if (responseQur.getBody().getStatus().equals("OUTPUT")) {
+                    //查询执行结果的地址
+                    urlOverHttps = urlOverHttps + "/files/102/records";
+                    ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
+                    return ResponseEntity.ok(result.getBody());
+                }
+            }
+            //超时
+            return ResponseEntity.status(202).body("time out");
+        }
+    }
+
 }
