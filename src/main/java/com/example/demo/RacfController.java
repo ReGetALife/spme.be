@@ -86,27 +86,27 @@ public class RacfController {
 	    @CrossOrigin(origins = "*", allowCredentials = "true")
 	    @RequestMapping(value = "/racf/inputCommand", method = RequestMethod.POST)
 	    public ResponseEntity<String> addUser(@RequestBody Map<String, String> commBody, HttpSession session) {
-	//获取session数据
+
 	        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
 	        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
 	        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+	        
 	        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
-	            //没有token信息，授权失败
 	            return ResponseEntity.status(401).body("unauthorized");
 	        } else {
-	            //禁用ssl证书校验
 	            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
 	            HttpComponentsClientHttpRequestFactory requestFactory
 	                    = new HttpComponentsClientHttpRequestFactory();
 	            requestFactory.setHttpClient(httpClient);
-	            //提交jcl的zosmf地址
-	            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs";
-	            //设置请求头
+	            //jcljob提交地址
+	            String jclAddress = ZOSMF_Address.toString();
+	            String urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs";
+	            
 	            HttpHeaders headers = new HttpHeaders();
 	            headers.setContentType(MediaType.TEXT_PLAIN);
 	            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
-	            //构建racf命令
-	            
+
+	            //获取命令
 	            StringBuilder command = new StringBuilder(""); 
 	            if (commBody.get("command") != null && !commBody.get("command").equals("")) {
 	                command.append(commBody.get("command")).append(" ");
@@ -121,7 +121,7 @@ public class RacfController {
 
 	            //添加body中的text
 	            String line1 = "//RACFTRY JOB CLASS=A,MSGLEVEL=(1,1),MSGCLASS=H,";
-	            String line2 = "// TIME=1                                       ";
+	            String line2 = "// TIME=2                                       ";
 	            String line3 = "//SEND EXEC PGM=IKJEFT01                        ";
 	            String line4 = "//SYSPRINT DD DUMMY                             ";
 	            String line5 = "//SYSTSPRT DD SYSOUT=*                          ";
@@ -133,16 +133,16 @@ public class RacfController {
 	            HttpEntity<String> requestSub = new HttpEntity<>(allLines, headers);
 	            ResponseEntity<JobInfo> responseSub = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.PUT, requestSub, JobInfo.class);
 
-	            //每隔100毫秒查看一次作业结果，等待两秒
-	            for (int i = 0; i < 20; i++) {
+
+	            for (int i = 0; i < 10; i++) {
 	                try {
-	                    Thread.currentThread().sleep(100);//毫秒
+	                    Thread.currentThread().sleep(200);//
 	                } catch (Exception e) {
 	                    System.out.println(e.getMessage());
 	                }
 	                //查询执行状态的地址
-	                urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
-	                //查询结果的request
+	                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+	                //查询结果
 	                HttpEntity<String> requestQur = new HttpEntity<>(headers);
 	                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
 	                //判断作业状态
