@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +170,7 @@ public class SmsController {
     //提交作业
     @CrossOrigin(origins = "*",allowCredentials = "true")
     @RequestMapping(value = "/sms/subjob",method = RequestMethod.PUT)
-    public ResponseEntity<String> subJob(@RequestParam List<String> lists,HttpSession session){
+    public ResponseEntity<String> subJob(@RequestBody Map<String,List<String>>map,HttpSession session){
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
         Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
@@ -189,6 +190,7 @@ public class SmsController {
             headers.add("Cookie",ZOSMF_JSESSIONID.toString()+";"+ZOSMF_LtpaToken2);
             //body
             StringBuffer sb = new StringBuffer();
+            List<String> lists = map.get("jclList");
             for(String item :lists){
                 sb.append(item+"\n");
             }
@@ -227,7 +229,7 @@ public class SmsController {
     @CrossOrigin(origins = "*",allowCredentials = "true")
     @RequestMapping(value = "/sms/writeds",method = RequestMethod.PUT)
     //para jcl-content + dataset-name
-    public ResponseEntity<String> writeDS(@RequestParam String dsname,@RequestParam List<String> jclList, HttpSession session){
+    public ResponseEntity<String> writeDS(@RequestBody Map<String,Object> map, HttpSession session){
         //获取session数据
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
         Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
@@ -241,14 +243,16 @@ public class SmsController {
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //url
-            String url = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+dsname;
+            String url = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+map.get("dsName");
             //headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
             headers.add("Cookie",ZOSMF_JSESSIONID.toString()+";"+ZOSMF_LtpaToken2);
             //body
             StringBuffer sb = new StringBuffer();
-            for(String item:jclList){
+            Collection<Object> jclList = (Collection<Object>) map.get("jclList");
+            System.out.println(jclList);
+            for(Object item:jclList){
                 sb.append(item+"\n");
             }
             String jclStr = sb.toString();
@@ -278,7 +282,9 @@ public class SmsController {
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //接收前端数据
+//            String url = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/ST007.AAAAE.TEST";
             String url = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+ds.getDsname();
+            System.out.println(ds.getDsname());
             //headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -296,6 +302,20 @@ public class SmsController {
             object.put("recfm", ds.getRecfm());
             object.put("blksize", ds.getBlksize());
             object.put("lrecl", ds.getLrecl());
+//            object.put("volser","BYWK00");
+//            object.put("unit","3390");
+//            object.put("dsorg", "PO");
+//            object.put("alcunit","TRK");
+//            object.put("primary", 10);
+//            object.put("secondary",10);
+//            object.put("dirblk", 5);
+//            object.put("avgblk", 500);
+//            object.put("recfm","FB");
+//            object.put("blksize", 400);
+//            object.put("lrecl", 80);
+
+            System.out.println(object.toJSONString());
+
             //start request
             HttpEntity<JSONObject> requestcrt = new HttpEntity<>(object, headers);
             //get response
