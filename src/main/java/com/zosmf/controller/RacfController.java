@@ -1,9 +1,12 @@
-package com.example.demo;
+package com.zosmf.controller;
 
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.zosmf.domain.JCLInfo;
+import com.zosmf.domain.JobInfo;
+import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.zosmf.domain;
 
 public class JobInfo {
     public String getOwner() {

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.zosmf.utils;
 
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;

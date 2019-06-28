@@ -1,19 +1,19 @@
-package com.example.demo;
+package com.zosmf.controller;
 
 
+import com.zosmf.domain.DatasetInfo;
+import com.zosmf.domain.JobInfo;
+import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 

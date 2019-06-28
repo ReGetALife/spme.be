@@ -1,11 +1,10 @@
-package com.example.demo;
+package com.zosmf.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
+import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class DemoController {
+public class LoginController {
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
