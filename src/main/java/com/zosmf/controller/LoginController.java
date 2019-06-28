@@ -34,7 +34,7 @@ public class LoginController {
         if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
             System.out.println("session未保存，从zosmf获取token并保存至session。");
 
-            //获取zomsmf地址
+            //获取zosmf地址
             ZOSMF_Address = account.get("address");
             //获取登录账户名
             ZOSMF_Account = account.get("account");
@@ -79,6 +79,8 @@ public class LoginController {
         } else {
             System.out.println("session已经存在");
         }
+        //判断是否教师登录
+
         System.out.println(ZOSMF_Address);
         System.out.println(ZOSMF_JSESSIONID);
         System.out.println(ZOSMF_LtpaToken2);

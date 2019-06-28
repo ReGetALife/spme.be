@@ -1,1 +1,43 @@
-# zosmf.be
+# zosmf.be 
+
+<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/ReGetALife/zosmf.be.svg">
+<img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/zosmf.be.svg?color=black">
+
+This is the back-end project of a simulation platform of mainframe experiment at Tongji University, which is based on z/OSMF REST APIs . 
+
+You can checkout [this link](http://139.199.75.41:3000/project/11/interface/api) for more information about the interfaces provided by this project (only project developers are allowed for now).
+
+### Related project
+
+[zosmf.fe](https://github.com/giuem/zosmf.fe)
+
+### Getting Started
+
+#### Prerequisites
+
+* Java 1.8 or later
+* Maven 3.6.0 or later
+
+#### Running
+
+```bash
+mvn spring-boot:run
+```
+
+#### Packaging
+
+```bash
+mvn package
+```
+#### Running jar
+
+```bash
+java -jar target/be-0.0.1-SNAPSHOT.jar
+```
+
+### Built With
+
+* [Spring Boot](https://spring.io/projects/spring-boot) - Java Web Framework
+* [Maven](https://maven.apache.org/) - Dependency Management
+* [IntelliJ IDEA](https://www.jetbrains.com/idea/) - IDE
+* [YApi](https://github.com/YMFE/yapi) - API Management
