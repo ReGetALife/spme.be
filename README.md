@@ -1,11 +1,13 @@
 # zosmf.be 
 
+<p align="left">
 <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/ReGetALife/zosmf.be.svg">
 <img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/zosmf.be.svg?color=black">
+</p>
 
 This is the back-end project of a simulation platform of mainframe experiment at Tongji University, which is based on z/OSMF REST APIs . 
 
-You can checkout [this link](http://139.199.75.41:3000/project/11/interface/api) for more information about the interfaces provided by this project (only project developers are allowed for now).
+You can check [this link](http://139.199.75.41:3000/project/11/interface/api) for more information about the interfaces provided by this project (only project developers are allowed for now).
 
 ### Related project
 
