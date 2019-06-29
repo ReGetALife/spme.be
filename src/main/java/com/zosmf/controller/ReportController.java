@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/db")
 public class ReportController {
 
+    private String pdfBasePath = "/home/user/Documents/report/";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -135,7 +137,7 @@ public class ReportController {
                     Font cf_step = new Font(font, 12, Font.BOLD);
                     Font cf_question = new Font(font, 8, Font.BOLD);
                     Font cf_answer = new Font(font, 8, Font.NORMAL);
-                    PdfWriter.getInstance(document, new FileOutputStream("D:\\" + uid + lab + ".pdf"));
+                    PdfWriter.getInstance(document, new FileOutputStream(pdfBasePath + uid + lab + ".pdf"));
                     document.open();
                     Paragraph title = new Paragraph(lab, FontFactory.getFont(FontFactory.HELVETICA, 24,
                             Font.BOLD, new CMYKColor(0, 255, 255, 17)));
@@ -197,15 +199,16 @@ public class ReportController {
         }else{
             String uid = req.get("uid");
             String lab = req.get("lab");
-            String retString = null;
+            //String retString = null;
             //这里改成服务器上的pdf文件夹路径
-            String dir = "D:\\";
+            //String dir = "D:\\";
             String filename = uid + lab + ".pdf";
-            File file = new File(dir + filename);
+            //File file = new File(dir + filename);
             //这里的 D: 改成服务器地址
-            String path = "D:" +  dir.substring(dir.lastIndexOf('\\')) + filename;
-            retString = path.replaceAll("\\\\", "/");
-            return retString;
+            //String path = "D:" +  dir.substring(dir.lastIndexOf('\\')) + filename;
+            //retString = path.replaceAll("\\\\", "/");
+            //return retString;
+            return pdfBasePath+filename;
         }
     }
 
@@ -248,7 +251,8 @@ public class ReportController {
         }else{
             int count = 0;
             //改成服务器pdf的文件夹地址
-            String dir = "D:\\";
+            //String dir = "D:\\";
+            String dir = pdfBasePath;
             File file_dir = new File(dir);
             File[] files = file_dir.listFiles();
             for(int i = 0; i < files.length; i++){
@@ -278,7 +282,8 @@ public class ReportController {
             ServletOutputStream out = null;
             FileInputStream ips = null;
             //改成服务器上的pdf文件夹路径
-            String dir = "D:\\";
+            //String dir = "D:\\";
+            String dir = pdfBasePath;
             try{
                 String uid = req.get("uid").toString();
                 String lab = req.get("lab").toString();
