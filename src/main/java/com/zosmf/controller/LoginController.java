@@ -40,7 +40,7 @@ public class LoginController {
             //获取zosmf地址
             ZOSMF_Address = account.get("address");
             //获取登录账户名
-            ZOSMF_Account = account.get("account");
+            ZOSMF_Account = account.get("account").toUpperCase();
             //禁用ssl证书校验
             CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
             HttpComponentsClientHttpRequestFactory requestFactory
