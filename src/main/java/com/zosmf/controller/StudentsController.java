@@ -1,4 +1,4 @@
-package com.zosmf.controller;
+﻿package com.zosmf.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,8 +27,16 @@ public class StudentsController {
     //返回学生草稿
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getdraft", method = RequestMethod.GET)
-    public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req){
-
+    public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session){
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            //没有token信息，授权失败
+            throw new UnauthorizedException();
+        }
+        else {
             String uid = req.get("uid");
             //String uid = ZOSMF_Account.toString();
             String lab = req.get("lab");
@@ -42,7 +50,7 @@ public class StudentsController {
             } else {
                 return list;
             }
-
+        }
     }
     //学生上传报告
     @CrossOrigin(origins = "*", allowCredentials = "true")
