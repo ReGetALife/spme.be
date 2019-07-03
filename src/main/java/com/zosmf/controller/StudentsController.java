@@ -24,7 +24,7 @@ public class StudentsController {
     @ResponseStatus(value = HttpStatus.OK)
     public class SqlOKException extends RuntimeException{}
 
-    //返回学生草稿
+    //返回学生报告
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getdraft", method = RequestMethod.GET)
     public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session){
