@@ -334,6 +334,7 @@ public class ReportController {
         }
     }
 
+    //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins="*", allowCredentials = "true")
     @RequestMapping(value = "/downloadPDFs", method = RequestMethod.GET)
     public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response){
@@ -380,6 +381,31 @@ public class ReportController {
                 }catch (IOException ioe){
                     ioe.printStackTrace();
                 }
+            }
+        }
+    }
+
+    //获取大实验、小实验、步骤下的所有问题
+    @CrossOrigin(origins="*", allowCredentials = "true")
+    @RequestMapping(value = "/getQuestions", method = RequestMethod.GET)
+    public List<Map<String, Object>> getQuestions(@RequestBody Map<String, String> req, HttpSession session) {
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            //没有token信息，授权失败
+            throw new UnauthorizedException();
+        } else {
+            String lab = req.get("lab");
+            String step = req.get("step");
+            String lower_lab = req.get("lower_lab");
+            String sql = "select question_id, question from question where lab=? and step=? and lower_lab=?";
+            List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, lab, step, lower_lab);
+            if (result.size() == 0){
+                throw new ResourceNotFoundException();
+            } else {
+                return result;
             }
         }
     }
