@@ -57,7 +57,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subAnswer", method = RequestMethod.POST)
     public List<Map<String, Object>> subAnswer(@RequestBody List<Map<String, Object>> req, HttpSession session) {
-        /*(Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
         Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
@@ -65,8 +65,7 @@ public class StudentsController {
         if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
-        } else {*/
-            String uid = "ST009";
+        } else {
             String sql_search = "select * from report where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
             String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?);";
             String sql_update = "update report set answer=? where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
@@ -89,7 +88,7 @@ public class StudentsController {
                 }
             }
             throw new SqlOKException();
-        //}
+        }
     }
 
     //学生确认提交

@@ -87,7 +87,7 @@ public class LoginController {
         try {
             //读文件
             String encoding = "UTF-8";
-            File file = new File("./zosmf-auth.txt");
+            File file = new File("/home/user/Documents/zosmf-auth.txt");
             if (file.isFile() && file.exists()) {
                 InputStreamReader read = new InputStreamReader(
                         new FileInputStream(file), encoding);// 考虑到编码格式
