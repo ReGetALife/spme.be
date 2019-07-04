@@ -334,6 +334,7 @@ public class ReportController {
         }
     }
 
+    //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins="*", allowCredentials = "true")
     @RequestMapping(value = "/downloadPDFs", method = RequestMethod.GET)
     public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response){
