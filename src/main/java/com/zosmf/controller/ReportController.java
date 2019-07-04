@@ -58,7 +58,7 @@ public class ReportController {
 
     //根据主机号获取学生 参数为要查找的学生主机号
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/getStudent", method = RequestMethod.GET)
+    @RequestMapping(value = "/getStudent", method = RequestMethod.POST)
     public List<Map<String, Object>> getStudentByID(@RequestBody String uid, HttpSession session){
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
@@ -254,7 +254,7 @@ public class ReportController {
 
     //根据主机账号和实验名预览pdf
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/getReports", method = RequestMethod.GET)
+    @RequestMapping(value = "/getReports", method = RequestMethod.POST)
     public String viewPDF(@RequestBody Map<String, String> req, HttpSession session) throws IOException{
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
@@ -305,7 +305,7 @@ public class ReportController {
 
     //计算某个实验的提交人数
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/subCount", method = RequestMethod.GET)
+    @RequestMapping(value = "/subCount", method = RequestMethod.POST)
     public int count(@RequestBody String lab, HttpSession session){
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
@@ -336,7 +336,7 @@ public class ReportController {
 
     //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/downloadPDFs", method = RequestMethod.GET)
+    @RequestMapping(value = "/downloadPDFs", method = RequestMethod.POST)
     public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response){
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
@@ -387,7 +387,7 @@ public class ReportController {
 
     //获取大实验、小实验、步骤下的所有问题
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/getQuestions", method = RequestMethod.GET)
+    @RequestMapping(value = "/getQuestions", method = RequestMethod.POST)
     public List<Map<String, Object>> getQuestions(@RequestBody Map<String, String> req, HttpSession session) {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");

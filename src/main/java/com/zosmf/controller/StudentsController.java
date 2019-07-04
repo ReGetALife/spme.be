@@ -27,7 +27,7 @@ public class StudentsController {
 
     //返回学生报告
     @CrossOrigin(origins = "*", allowCredentials = "true")
-    @RequestMapping(value = "/getdraft", method = RequestMethod.GET)
+    @RequestMapping(value = "/getdraft", method = RequestMethod.POST)
     public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session){
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
