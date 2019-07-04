@@ -100,10 +100,74 @@ public class ReportController {
                 String sql_insert = "insert into result (uid, score, comment, lab) values ( ?, ?, ?, ?);";
                 jdbcTemplate.update(sql_insert, uid, score, comment, lab);
             }else{
-                String sql_update = "update result set score=?, comment=? where uid=? and lab=?;";
-                jdbcTemplate.update(sql_update, score, comment, uid, lab);
+                int tag = (int) result_list.get(0).get("is_release");
+                if (tag == 1){
+                    throw new ResourceNotFoundException();
+                } else {
+                    String sql_update = "update result set score=?, comment=? where uid=? and lab=?;";
+                    jdbcTemplate.update(sql_update, score, comment, uid, lab);
+                }
             }
             throw new SqlOKException();
+        }
+    }
+
+    //老师发布评分和评论
+    @CrossOrigin(origins="*", allowCredentials = "true")
+    @RequestMapping(value = "/reScore", method = RequestMethod.POST)
+    public List<Map<String, Object>> releaseScore(HttpSession session){
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        Object is_teacher = session.getAttribute("is_teacher");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null|| is_teacher != "yes") {
+            //没有token信息，授权失败
+            throw new UnauthorizedException();
+        } else {
+            String sql_search = "select * from result";
+            List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search);
+            if (result_list.size() == 0){
+                throw new ResourceNotFoundException();
+            } else {
+                String sql_update = "update result set is_release=1";
+                jdbcTemplate.update(sql_update);
+            }
+            throw new SqlOKException();
+        }
+    }
+
+    //学生查看发布的成绩，未发布时返回返回ResourseNotFound的异常
+    @CrossOrigin(origins="*", allowCredentials = "true")
+    @RequestMapping(value = "/checkScore", method = RequestMethod.GET)
+    public List<Map<String, Object>> checkScore(HttpSession session){
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
+        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
+        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
+        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+            //没有token信息，授权失败
+            throw new UnauthorizedException();
+        } else {
+            String uid = ZOSMF_Account.toString();
+            System.out.println(uid);
+            String sql_search = "select * from result where uid=?";
+            List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid);
+            List<Map<String, Object>> result_return = null;
+            if (result_list.size() == 0){
+                throw new ResourceNotFoundException();
+            } else {
+                for (int i = 0; i < result_list.size(); i++){
+                    if (result_list.get(i).get("is_release") == "1"){
+                        result_return.add(result_list.get(i));
+                    }
+                }
+            }
+            if (result_return == null){
+                throw new ResourceNotFoundException();
+            } else {
+                throw new SqlOKException();
+            }
         }
     }
 
@@ -263,6 +327,7 @@ public class ReportController {
         }
     }
 
+    //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins="*", allowCredentials = "true")
     @RequestMapping(value = "/downloadPDFs", method = RequestMethod.GET)
     public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response){
