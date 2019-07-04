@@ -267,13 +267,9 @@ public class ReportController {
             String filename = uid + lab + ".pdf";
             File file = new File(dir + filename);
             //这里的 D: 改成服务器地址
-            if(!file.exists()){
-                throw new ResourceNotFoundException();
-            }else{
-                String path = "D:" +  dir.substring(dir.lastIndexOf('\\')) + filename;
-                retString = path.replaceAll("\\\\", "/");
-                return retString;
-            }
+            String path = "D:" +  dir.substring(dir.lastIndexOf('\\')) + filename;
+            retString = path.replaceAll("\\\\", "/");
+            return retString;
         }
     }
 
@@ -333,9 +329,9 @@ public class ReportController {
 
     //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins="*", allowCredentials = "true")
-    @RequestMapping(value = "/downloadPDFs")
-    public void downloadPDFs(@RequestParam("uid") String uid, @RequestParam("lab") String lab, HttpSession session, HttpServletResponse response){
-        /*Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+    @RequestMapping(value = "/downloadPDFs", method = RequestMethod.GET)
+    public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response){
+        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
         Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
@@ -378,6 +374,6 @@ public class ReportController {
                     ioe.printStackTrace();
                 }
             }
-        //}
+        }
     }
 }
