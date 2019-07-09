@@ -3,6 +3,7 @@
 <p align="left">
 <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/ReGetALife/zosmf.be.svg">
 <img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/zosmf.be.svg?color=black">
+<a href="https://travis-ci.com/ReGetALife/zosmf.be"><img src="https://travis-ci.com/ReGetALife/zosmf.be.svg?branch=master"></a>
 </p>
 
 This is the back-end project of a simulation platform of mainframe experiment at Tongji University, which is based on z/OSMF REST APIs . 
