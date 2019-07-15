@@ -44,8 +44,8 @@ public class StudentsController {
             String step = req.get("step");
             String lower_lab = req.get("lower_lab");
             //String question_id = req.get("question_id");
-            String sql = "select question_id, answer from report where uid=? and lab=? and step=? and lower_lab=? and is_draft=?";
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, uid, lab, step, lower_lab, "Y");
+            String sql = "select question_id, answer ,is_draft from report where uid=? and lab=? and step=? and lower_lab=?";
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, uid, lab, step, lower_lab);
             if (list.size() == 0) {
                 throw new ResourceNotFoundException();
             } else {
