@@ -22,6 +22,10 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 登录，登出和登录状态检查
+ * @author 李庆国
+ */
 @Controller
 public class LoginController {
 
@@ -60,7 +64,9 @@ public class LoginController {
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.add("Cookie", ZOSMF_JSESSIONID.toString());
+            if (ZOSMF_JSESSIONID != null) {
+                headers.add("Cookie", ZOSMF_JSESSIONID.toString());
+            }
             headers.add("Referer", zosmfUrlOverHttps);//欺骗服务器这不是csrf这不是csrf这不是csrf
             //添加表单数据
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -88,6 +94,7 @@ public class LoginController {
             //读文件
             String encoding = "UTF-8";
             File file = new File("/home/user/Documents/zosmf-auth.txt");
+            //File file = new File("./zosmf-auth.txt");
             if (file.isFile() && file.exists()) {
                 InputStreamReader read = new InputStreamReader(
                         new FileInputStream(file), encoding);// 考虑到编码格式
