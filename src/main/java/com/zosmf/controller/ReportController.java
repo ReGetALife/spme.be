@@ -11,10 +11,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author 徐仁和
@@ -165,7 +162,7 @@ public class ReportController {
             //返回实验报告pdf
             String filename = uid + lab + ".pdf";
             File file = new File(pdfBasePath + "preview/" + filename);
-            PDFUtil.downloadPDF(file,response);
+            PDFUtil.downloadFile(file, response);
         }
     }
 
@@ -191,32 +188,31 @@ public class ReportController {
     //获取某个实验的提交学生列表
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitted", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String,Object>>> submitted(@RequestParam String lab, HttpSession session) {
+    public ResponseEntity<List<Map<String, Object>>> submitted(@RequestParam String lab, HttpSession session) {
         if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
             File dir = new File(pdfBasePath + "submitted");
-            List<Map<String,Object>> list = new ArrayList<>();
+            List<Map<String, Object>> list = new ArrayList<>();
             if (dir.exists() && dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        if (file.getName().endsWith(lab + ".pdf")){
-                            Map<String,Object> map = new HashMap<>();
+                        if (file.getName().endsWith(lab + ".pdf")) {
+                            Map<String, Object> map = new HashMap<>();
                             String uid = file.getName().split(lab + ".pdf")[0];
-                            map.put("uid",uid);
+                            map.put("uid", uid);
                             //查询评论和分数
                             String sql_search = "select * from result where uid=? and lab=?";
                             List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
                             //无记录status为0
-                            if(result_list.size()==0){
+                            if (result_list.size() == 0) {
                                 map.put("status", 0);
                                 map.put("score", null);
                                 map.put("comment", null);
                                 map.put("is_release", null);
-                            }
-                            else {
+                            } else {
                                 map.put("status", 1);
                                 map.put("score", result_list.get(0).get("score"));
                                 map.put("comment", result_list.get(0).get("comment"));
@@ -245,7 +241,7 @@ public class ReportController {
                 String lab = req.get("lab").toString();
                 String filename = uid + lab + ".pdf";
                 File file = new File(dir + filename);
-                PDFUtil.downloadPDF(file,response);
+                PDFUtil.downloadFile(file, response);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -270,6 +266,27 @@ public class ReportController {
             } else {
                 return result;
             }
+        }
+    }
+
+    //批量下载pdf
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/downloadPDFs", method = RequestMethod.POST)
+    public void downloadPDFs(@RequestBody String[] filenames, HttpSession session, HttpServletResponse response) throws IOException {
+        if (AuthUtil.notTeacherLogin(session)) {
+            //没有token信息，授权失败
+            throw new UnauthorizedException();
+        } else {
+            String dir = pdfBasePath + "submitted/";
+            //存放压缩文件的目标
+            File dest = new File(pdfBasePath + new Date().getTime() + ".zip");
+            //生成压缩文件
+            PDFUtil.generateZip(new File(dir), dest, filenames);
+            //传输文件
+            PDFUtil.downloadFile(dest, response);
+            //删除临时文件
+            if (!dest.delete())
+                throw new IOException("temporary zip file cannot delete");
         }
     }
 }

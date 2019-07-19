@@ -1,4 +1,4 @@
-package com.zosmf.controller;
+package com.zosmf;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +12,7 @@ public class ZosmfApplicationTests {
 
     @Test
     public void contextLoads() {
+
     }
 
 }

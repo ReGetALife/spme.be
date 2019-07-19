@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * PDF相关的操作
@@ -83,7 +85,7 @@ public class PDFUtil {
     }
 
     //下载单个pdf/文件
-    public static void downloadPDF(File file, HttpServletResponse response) throws IOException {
+    public static void downloadFile(File file, HttpServletResponse response) throws IOException {
         if (file.exists()) {
             FileInputStream ips = new FileInputStream(file);
             response.setContentType("multipart/form-data");
@@ -102,7 +104,27 @@ public class PDFUtil {
     }
 
     //批量下载pdf
-    public static void downloadPDFs(File dir, String[] filenames, HttpServletResponse response) {
-
+    public static void generateZip(File baseDir, File dest, String[] filenames) throws IOException {
+        //存储字节流的容器
+        byte[] container = new byte[1024 * 10];
+        //文件输出流
+        ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(dest)));
+        for (String file : filenames) {
+            File pdf = new File(baseDir, file);
+            if (pdf.exists() && pdf.isFile()) {
+                ZipEntry zipEntry = new ZipEntry(file);
+                //加入一个zip条目
+                zipOutputStream.putNextEntry(zipEntry);
+                //pdf文件输入字节流
+                InputStream inputStream = new BufferedInputStream(new FileInputStream(pdf));
+                while (inputStream.read(container) != -1) {
+                    zipOutputStream.write(container);
+                }
+                inputStream.close();
+                zipOutputStream.flush();
+                zipOutputStream.closeEntry();
+            }
+        }
+        zipOutputStream.close();
     }
 }
