@@ -2,6 +2,7 @@ package com.zosmf.controller;
 
 import com.zosmf.domain.JCLInfo;
 import com.zosmf.domain.JobInfo;
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
@@ -15,6 +16,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * @author 徐仁和
+ */
 @Controller
 public class CatalogController {
 
@@ -24,7 +28,7 @@ public class CatalogController {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             return ResponseEntity.status(401).body(null);
         } else {

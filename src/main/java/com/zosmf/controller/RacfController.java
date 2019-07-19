@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 
 import com.zosmf.domain.JCLInfo;
 import com.zosmf.domain.JobInfo;
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.HttpEntity;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @author 李天阳
+ */
 @Controller
 public class RacfController {
 
@@ -33,9 +37,9 @@ public class RacfController {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
-            return new ResponseEntity("unauthorized", HttpStatus.valueOf(401));
+            return ResponseEntity.status(401).body(null);
         } else {
             CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
             HttpComponentsClientHttpRequestFactory requestFactory
@@ -49,7 +53,7 @@ public class RacfController {
             headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
 
 
-            StringBuilder command = new StringBuilder("");
+            StringBuilder command = new StringBuilder();
             if (commBody.get("command") != null && !commBody.get("command").equals("")) {
                 command.append(commBody.get("command")).append(" ");
             }
@@ -58,40 +62,43 @@ public class RacfController {
 
             for (int i = 0; i < 10; i++) {
                 try {
-                    Thread.currentThread().sleep(200);//毫秒
+                    Thread.sleep(200);//毫秒
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
-                //查询结果的request
-                HttpEntity<String> requestQur = new HttpEntity<>(headers);
-                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
-                //判断作业状态
-                if (responseQur.getBody().getStatus().equals("OUTPUT")) {
+                if (responseSub.getBody() != null) {
+                    urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                    //查询结果的request
+                    HttpEntity<String> requestQur = new HttpEntity<>(headers);
+                    ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
+                    //判断作业状态
+                    if (responseQur.getBody() != null && responseQur.getBody().getStatus().equals("OUTPUT")) {
 
-                    JCLInfo res_jclinfo = new JCLInfo();
-                    String JESMSGLG_url = urlOverHttps + "/files/2/records";
-                    String JESJCL_url = urlOverHttps + "/files/3/records";
-                    String JESYSMSG_url = urlOverHttps + "/files/4/records";
-                    String SYSPRINT_url = urlOverHttps + "/files/102/records";
-                    ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
-                    ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESJCL(res_JESJCL.getBody());
-                    ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
-                    ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
-                    return new ResponseEntity<JCLInfo>(res_jclinfo, HttpStatus.OK);
+                        JCLInfo res_jclinfo = new JCLInfo();
+                        String JESMSGLG_url = urlOverHttps + "/files/2/records";
+                        String JESJCL_url = urlOverHttps + "/files/3/records";
+                        String JESYSMSG_url = urlOverHttps + "/files/4/records";
+                        String SYSPRINT_url = urlOverHttps + "/files/102/records";
+                        ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
+                        ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESJCL(res_JESJCL.getBody());
+                        ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
+                        ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
+                        return new ResponseEntity<>(res_jclinfo, HttpStatus.OK);
 
-                    //urlOverHttps = urlOverHttps + "/files/102/records";
-                    //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
-                    //return ResponseEntity.ok(result.getBody());
+                        //urlOverHttps = urlOverHttps + "/files/102/records";
+                        //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
+                        //return ResponseEntity.ok(result.getBody());
+                    }
                 }
             }
+
             //超时
-            return new ResponseEntity("time out", HttpStatus.valueOf(202));
+            return ResponseEntity.status(202).body(null);
         }
     }
 
@@ -103,8 +110,8 @@ public class RacfController {
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
 
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
-            return new ResponseEntity("unauthorized", HttpStatus.valueOf(401));
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
         } else {
             CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
             HttpComponentsClientHttpRequestFactory requestFactory
@@ -119,7 +126,7 @@ public class RacfController {
             headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
 
             //获取命令
-            StringBuilder command = new StringBuilder("");
+            StringBuilder command = new StringBuilder();
             if (commBody.get("command") != null && !commBody.get("command").equals("")) {
                 command.append(commBody.get("command")).append(" ");
             }
@@ -148,47 +155,45 @@ public class RacfController {
 
             for (int i = 0; i < 10; i++) {
                 try {
-                    Thread.currentThread().sleep(200);//
+                    Thread.sleep(200);//
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
-                //查询结果
-                HttpEntity<String> requestQur = new HttpEntity<>(headers);
-                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
-                //判断作业状态
-                if (responseQur.getBody().getStatus().equals("OUTPUT")) {
-                    //查询执行结果的地址
-                    JCLInfo res_jclinfo = new JCLInfo();
-                    String JESMSGLG_url = urlOverHttps + "/files/2/records";
-                    String JESJCL_url = urlOverHttps + "/files/3/records";
-                    String JESYSMSG_url = urlOverHttps + "/files/4/records";
-                    String SYSPRINT_url = urlOverHttps + "/files/102/records";
-                    ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
-                    ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESJCL(res_JESJCL.getBody());
-                    ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
-                    ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
-                    return new ResponseEntity<JCLInfo>(res_jclinfo, HttpStatus.OK);
+                if (responseSub.getBody() != null) {
+                    urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                    //查询结果
+                    HttpEntity<String> requestQur = new HttpEntity<>(headers);
+                    ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
+                    //判断作业状态
+                    if (responseQur.getBody() != null && responseQur.getBody().getStatus().equals("OUTPUT")) {
+                        //查询执行结果的地址
+                        JCLInfo res_jclinfo = new JCLInfo();
+                        String JESMSGLG_url = urlOverHttps + "/files/2/records";
+                        String JESJCL_url = urlOverHttps + "/files/3/records";
+                        String JESYSMSG_url = urlOverHttps + "/files/4/records";
+                        String SYSPRINT_url = urlOverHttps + "/files/102/records";
+                        ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
+                        ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESJCL(res_JESJCL.getBody());
+                        ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
+                        ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
+                        res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
+                        return new ResponseEntity<>(res_jclinfo, HttpStatus.OK);
 
-                    //urlOverHttps = urlOverHttps + "/files/102/records";
-                    //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
-                    //String resultBody = "";
-                    //resultBody = result.getBody();
-                    //System.out.println(res_jclinfo.getJESJCL().toString());
-                    //return ResponseEntity.ok(result.getBody());
-
+                        //urlOverHttps = urlOverHttps + "/files/102/records";
+                        //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
+                        //String resultBody = "";
+                        //resultBody = result.getBody();
+                        //System.out.println(res_jclinfo.getJESJCL().toString());
+                        //return ResponseEntity.ok(result.getBody());
+                    }
                 }
             }
             //超时
-            return new ResponseEntity("time out", HttpStatus.valueOf(202));
+            return ResponseEntity.status(202).body(null);
         }
-
     }
-
-
 }

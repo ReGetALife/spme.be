@@ -14,6 +14,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author 杨言
+ * @author 徐仁和
+ * @author 李庆国
+ */
 @RestController
 @RequestMapping("/db")
 public class StudentsController {
@@ -39,7 +44,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getdraft", method = RequestMethod.POST)
     public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -61,7 +66,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subAnswer", method = RequestMethod.POST)
     public List<Map<String, Object>> subAnswer(@RequestBody List<Map<String, Object>> req, HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -99,7 +104,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/confirmAnswer", method = RequestMethod.POST)
     public List<Map<String, Object>> confirmAnswer(@RequestBody Map<String, String> req, HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -124,7 +129,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitLab", method = RequestMethod.POST)
     public ResponseEntity<String> submitLab(@RequestBody Map<String, String> data, HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             String sql_update = "update report set is_draft=? where uid=? and lab=?";

@@ -45,7 +45,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getStudents", method = RequestMethod.GET)
     public List<Map<String, Object>> getStudents(HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new ResourceNotFoundException();
         } else {
@@ -58,7 +58,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getStudent", method = RequestMethod.POST)
     public List<Map<String, Object>> getStudentByID(@RequestBody String uid, HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -76,7 +76,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subScore", method = RequestMethod.POST)
     public List<Map<String, Object>> subScores(@RequestBody Map<String, String> req, HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -107,7 +107,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/reScore", method = RequestMethod.POST)
     public List<Map<String, Object>> releaseScore(@RequestBody Map<String, String> data, HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -127,7 +127,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/checkScore", method = RequestMethod.GET)
     public List<Map<String, Object>> checkScore(HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -159,7 +159,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getReports", method = RequestMethod.GET)
     public void viewPDF(@RequestParam String lab, HttpSession session, HttpServletResponse response) throws IOException {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -177,7 +177,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/saveStudents", method = RequestMethod.POST)
     public String saveStudents(@RequestBody List<Map<String, String>> reqs, HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -196,7 +196,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitted", method = RequestMethod.GET)
     public ResponseEntity<List<String>> submitted(@RequestParam String lab, HttpSession session) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -220,7 +220,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/downloadPDF", method = RequestMethod.POST)
     public void downloadPDF(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response) {
-        if (!AuthUtil.checkTeacherLogin(session)) {
+        if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -241,7 +241,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getQuestions", method = RequestMethod.POST)
     public List<Map<String, Object>> getQuestions(@RequestBody Map<String, String> req, HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {

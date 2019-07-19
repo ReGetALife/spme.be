@@ -26,6 +26,7 @@ import java.util.Map;
 
 /**
  * 登录，登出和登录状态检查
+ *
  * @author 李庆国
  */
 @Controller
@@ -37,7 +38,7 @@ public class LoginController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<String> login(@RequestBody Map<String, String> account, HttpSession session, HttpServletRequest httpServletRequest) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
             Object ZOSMF_LtpaToken2;
             Object ZOSMF_Address ;
@@ -124,7 +125,7 @@ public class LoginController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ResponseEntity<String> loginInfo(HttpSession session) {
-        if (!AuthUtil.checkLogin(session)) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             return ResponseEntity.ok(session.getAttribute("ZOSMF_Account").toString().toUpperCase());

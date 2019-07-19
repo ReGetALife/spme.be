@@ -3,6 +3,7 @@ package com.zosmf.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zosmf.domain.JobInfo;
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
@@ -16,7 +17,9 @@ import java.util.Map;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-
+/**
+ * @author 徐伟喆
+ */
 @Controller
 public class RexxController {
     //删除数据集
@@ -25,16 +28,10 @@ public class RexxController {
     public ResponseEntity<String> exDataset(@RequestBody Map<String, String> map, HttpSession session) {
         String rexxName = map.get("rexxName");
         //获取session
-        System.out.println(rexxName);
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        System.out.println(ZOSMF_Address.toString());
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        System.out.println(ZOSMF_Account.toString());
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        System.out.println(ZOSMF_JSESSIONID.toString());
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        System.out.println(ZOSMF_LtpaToken2.toString());
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             //禁用ssl证书校验
@@ -65,10 +62,9 @@ public class RexxController {
         String name = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + name;
@@ -92,10 +88,9 @@ public class RexxController {
         String rexxName = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             //禁用ssl证书校验
@@ -134,10 +129,9 @@ public class RexxController {
         String rexxName = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             //禁用ssl证书校验
@@ -176,12 +170,11 @@ public class RexxController {
     public ResponseEntity<String> writeDataset(@RequestBody Map<String, String> map, HttpSession session) {
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         String name = map.get("rexxName");
         String text = map.get("rexxCode");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             //禁用ssl证书校验
@@ -211,12 +204,11 @@ public class RexxController {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         String libname = map.get("libName");
         String rexxname = map.get("rexxName");
         String input = map.get("rexxPut");
         System.out.println(input);
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
+        if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
             return ResponseEntity.status(401).body("unauthorized");
         } else {//把racf命令包装成jcl执行
@@ -248,21 +240,23 @@ public class RexxController {
             //每隔100毫秒查看一次作业结果，等待两秒
             for (int i = 0; i < 20; i++) {
                 try {
-                    Thread.currentThread().sleep(100);//毫秒
+                    Thread.sleep(100);//毫秒
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
-                //查询结果的request
-                HttpEntity<String> requestQur = new HttpEntity<>(headers);
-                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
-                //判断作业状态
-                if (responseQur.getBody().getStatus().equals("OUTPUT")) {
-                    //查询执行结果的地址
-                    urlOverHttps = urlOverHttps + "/files/102/records";
-                    ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
-                    return ResponseEntity.ok(result.getBody());
+                if (responseSub.getBody() != null) {
+                    urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                    //查询结果的request
+                    HttpEntity<String> requestQur = new HttpEntity<>(headers);
+                    ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
+                    //判断作业状态
+                    if (responseQur.getBody() != null && responseQur.getBody().getStatus().equals("OUTPUT")) {
+                        //查询执行结果的地址
+                        urlOverHttps = urlOverHttps + "/files/102/records";
+                        ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
+                        return ResponseEntity.ok(result.getBody());
+                    }
                 }
             }
             //超时

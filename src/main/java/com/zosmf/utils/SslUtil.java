@@ -20,6 +20,8 @@ import java.security.cert.X509Certificate;
 /**
  * 信任https证书
  * 参考https://blog.csdn.net/puhaiyang/article/details/84068733
+ *
+ * @author 李庆国
  */
 public class SslUtil {
     public static CloseableHttpClient SslHttpClientBuild() {
@@ -29,8 +31,7 @@ public class SslUtil {
                 .build();
         //创建ConnectionManager，添加Connection配置信息
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-        return httpClient;
+        return HttpClients.custom().setConnectionManager(connectionManager).build();
     }
 
     /**
@@ -41,15 +42,13 @@ public class SslUtil {
         TrustManager[] trustAllCerts = new TrustManager[1];
         TrustManager tm = new miTM();
         trustAllCerts[0] = tm;
-        SSLContext sc = null;
+        SSLContext sc;
         try {
             sc = SSLContext.getInstance("TLS");//sc = SSLContext.getInstance("TLS")
             sc.init(null, trustAllCerts, null);
             socketFactory = new SSLConnectionSocketFactory(sc, NoopHostnameVerifier.INSTANCE);
             //HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }
         return socketFactory;
