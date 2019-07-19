@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,13 +92,8 @@ public class ReportController {
                 String sql_insert = "insert into result (uid, score, comment, lab) values ( ?, ?, ?, ?);";
                 jdbcTemplate.update(sql_insert, uid, score, comment, lab);
             } else {
-                int tag = (int) result_list.get(0).get("is_release");
-                if (tag == 1) {
-                    throw new ResourceNotFoundException();
-                } else {
-                    String sql_update = "update result set score=?, comment=? where uid=? and lab=?;";
-                    jdbcTemplate.update(sql_update, score, comment, uid, lab);
-                }
+                String sql_update = "update result set score=?, comment=? where uid=? and lab=?;";
+                jdbcTemplate.update(sql_update, score, comment, uid, lab);
             }
             throw new SqlOKException();
         }
@@ -195,20 +191,39 @@ public class ReportController {
     //获取某个实验的提交学生列表
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitted", method = RequestMethod.GET)
-    public ResponseEntity<List<String>> submitted(@RequestParam String lab, HttpSession session) {
+    public ResponseEntity<List<Map<String,Object>>> submitted(@RequestParam String lab, HttpSession session) {
         if (AuthUtil.notTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
             File dir = new File(pdfBasePath + "submitted");
-            List<String> list = new ArrayList<>();
+            List<Map<String,Object>> list = new ArrayList<>();
             if (dir.exists() && dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null) {
-                    for (File file :
-                            files) {
-                        if (file.getName().endsWith(lab + ".pdf"))
-                            list.add(file.getName().split(lab + ".pdf")[0]);
+                    for (File file : files) {
+                        if (file.getName().endsWith(lab + ".pdf")){
+                            Map<String,Object> map = new HashMap<>();
+                            String uid = file.getName().split(lab + ".pdf")[0];
+                            map.put("uid",uid);
+                            //查询评论和分数
+                            String sql_search = "select * from result where uid=? and lab=?";
+                            List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
+                            //无记录status为0
+                            if(result_list.size()==0){
+                                map.put("status", 0);
+                                map.put("score", null);
+                                map.put("comment", null);
+                                map.put("is_release", null);
+                            }
+                            else {
+                                map.put("status", 1);
+                                map.put("score", result_list.get(0).get("score"));
+                                map.put("comment", result_list.get(0).get("comment"));
+                                map.put("is_release", result_list.get(0).get("is_release"));
+                            }
+                            list.add(map);
+                        }
                     }
                 }
             }
