@@ -1,8 +1,10 @@
 package com.zosmf.controller;
 
 
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
@@ -29,16 +31,17 @@ import java.util.Map;
 @Controller
 public class LoginController {
 
+    @Value("${com.zosmf.controller.teacherAuthFile}")
+    private String authFilePath;
+
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<String> login(@RequestBody Map<String, String> account, HttpSession session, HttpServletRequest httpServletRequest) {
-        //获取session
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
+            Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
+            Object ZOSMF_LtpaToken2;
+            Object ZOSMF_Address ;
+            Object ZOSMF_Account ;
             System.out.println("session未保存，从zosmf获取token并保存至session。");
 
             //获取zosmf地址
@@ -93,8 +96,7 @@ public class LoginController {
         try {
             //读文件
             String encoding = "UTF-8";
-            File file = new File("/home/user/Documents/zosmf-auth.txt");
-            //File file = new File("./zosmf-auth.txt");
+            File file = new File(authFilePath);
             if (file.isFile() && file.exists()) {
                 InputStreamReader read = new InputStreamReader(
                         new FileInputStream(file), encoding);// 考虑到编码格式
@@ -116,24 +118,16 @@ public class LoginController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println(ZOSMF_Address);
-        System.out.println(ZOSMF_JSESSIONID);
-        System.out.println(ZOSMF_LtpaToken2);
         return ResponseEntity.ok("successful");
     }
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ResponseEntity<String> loginInfo(HttpSession session) {
-        //获取session
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
-            return ResponseEntity.ok(ZOSMF_Account.toString().toUpperCase());
+            return ResponseEntity.ok(session.getAttribute("ZOSMF_Account").toString().toUpperCase());
         }
     }
 
@@ -143,6 +137,7 @@ public class LoginController {
         session.removeAttribute("ZOSMF_JSESSIONID");
         session.removeAttribute("ZOSMF_LtpaToken2");
         session.removeAttribute("ZOSMF_Address");
+        session.removeAttribute("ZOSMF_Account");
         System.out.println("登出");
         return ResponseEntity.ok("successful");
     }

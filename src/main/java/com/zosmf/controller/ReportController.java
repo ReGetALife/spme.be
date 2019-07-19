@@ -1,12 +1,13 @@
 package com.zosmf.controller;
 
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.PDFUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
@@ -14,12 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author 徐仁和
+ * @author 李庆国
+ */
 @RestController
 @RequestMapping("/db")
 public class ReportController {
 
-    private String pdfBasePath = "/home/user/Documents/report/";
-//    private String pdfBasePath = "./";
+    @Value("${com.zosmf.controller.pdfBasePath}")
+    private String pdfBasePath;
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -40,11 +45,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getStudents", method = RequestMethod.GET)
     public List<Map<String, Object>> getStudents(HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new ResourceNotFoundException();
         } else {
@@ -57,12 +58,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getStudent", method = RequestMethod.POST)
     public List<Map<String, Object>> getStudentByID(@RequestBody String uid, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        System.out.println(ZOSMF_Account);
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -80,12 +76,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subScore", method = RequestMethod.POST)
     public List<Map<String, Object>> subScores(@RequestBody Map<String, String> req, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object is_teacher = session.getAttribute("is_teacher");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null || is_teacher != "yes") {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -116,12 +107,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/reScore", method = RequestMethod.POST)
     public List<Map<String, Object>> releaseScore(@RequestBody Map<String, String> data, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object is_teacher = session.getAttribute("is_teacher");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null || is_teacher != "yes") {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -141,15 +127,11 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/checkScore", method = RequestMethod.GET)
     public List<Map<String, Object>> checkScore(HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            String uid = ZOSMF_Account.toString();
+            String uid = session.getAttribute("ZOSMF_Account").toString();
             //String uid = "ST009";
             System.out.println(uid);
             String sql_search = "select * from result where uid=?";
@@ -177,35 +159,17 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getReports", method = RequestMethod.GET)
     public void viewPDF(@RequestParam String lab, HttpSession session, HttpServletResponse response) throws IOException {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
             //生成pdf
-            String uid = ZOSMF_Account.toString();
+            String uid = session.getAttribute("ZOSMF_Account").toString();
             PDFUtil.generatePDF(uid, lab, pdfBasePath + "preview", jdbcTemplate);
             //返回实验报告pdf
             String filename = uid + lab + ".pdf";
             File file = new File(pdfBasePath + "preview/" + filename);
-            if (file.exists()) {
-                FileInputStream ips = new FileInputStream(file);
-                response.setContentType("multipart/form-data");
-                response.addHeader("Content-Disposition", "attachment; filename=\"" + uid + lab + ".pdf" + "\"");
-                ServletOutputStream out = response.getOutputStream();
-                //读取文件流
-                int len;
-                byte[] buffer = new byte[1024 * 10];
-                while ((len = ips.read(buffer)) != -1) {
-                    out.write(buffer, 0, len);
-                }
-                out.flush();
-                out.close();
-                ips.close();
-            }
+            PDFUtil.downloadPDF(file,response);
         }
     }
 
@@ -213,12 +177,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/saveStudents", method = RequestMethod.POST)
     public String saveStudents(@RequestBody List<Map<String, String>> reqs, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object is_teacher = session.getAttribute("is_teacher");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null || is_teacher != "yes") {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -237,12 +196,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitted", method = RequestMethod.GET)
     public ResponseEntity<List<String>> submitted(@RequestParam String lab, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object is_teacher = session.getAttribute("is_teacher");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null || is_teacher != "yes") {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -264,52 +218,21 @@ public class ReportController {
 
     //下载单个pdf，需要主机账号和实验名
     @CrossOrigin(origins = "*", allowCredentials = "true")
-    @RequestMapping(value = "/downloadPDFs", method = RequestMethod.POST)
-    public void downloadPDFs(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object is_teacher = session.getAttribute("is_teacher");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null || is_teacher != "yes") {
+    @RequestMapping(value = "/downloadPDF", method = RequestMethod.POST)
+    public void downloadPDF(@RequestBody Map<String, Object> req, HttpSession session, HttpServletResponse response) {
+        if (!AuthUtil.checkTeacherLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            ServletOutputStream out = null;
-            FileInputStream ips = null;
-
             String dir = pdfBasePath + "submitted/";
             try {
                 String uid = req.get("uid").toString();
                 String lab = req.get("lab").toString();
                 String filename = uid + lab + ".pdf";
                 File file = new File(dir + filename);
-                if (file.exists()) {
-                    ips = new FileInputStream(file);
-                    response.setContentType("multipart/form-data");
-                    response.addHeader("Content-Disposition", "attachment; filename=\"" + uid + lab + ".pdf" + "\"");
-                    out = response.getOutputStream();
-                    //读取文件流
-                    int len;
-                    byte[] buffer = new byte[1024 * 10];
-                    while ((len = ips.read(buffer)) != -1) {
-                        out.write(buffer, 0, len);
-                    }
-                    out.flush();
-                }
+                PDFUtil.downloadPDF(file,response);
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                    if (ips != null) {
-                        ips.close();
-                    }
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
             }
         }
     }
@@ -318,11 +241,7 @@ public class ReportController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getQuestions", method = RequestMethod.POST)
     public List<Map<String, Object>> getQuestions(@RequestBody Map<String, String> req, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {

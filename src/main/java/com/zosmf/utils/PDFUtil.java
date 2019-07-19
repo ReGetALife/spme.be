@@ -7,12 +7,18 @@ import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * PDF相关的操作
+ *
+ * @author 李庆国
+ * @author 徐仁和
+ */
 public class PDFUtil {
 
     //生成某个学生的的实验报告的pdf
@@ -74,6 +80,29 @@ public class PDFUtil {
                 de.printStackTrace();
             }
         }
+    }
+
+    //下载单个pdf/文件
+    public static void downloadPDF(File file, HttpServletResponse response) throws IOException {
+        if (file.exists()) {
+            FileInputStream ips = new FileInputStream(file);
+            response.setContentType("multipart/form-data");
+            response.addHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            ServletOutputStream out = response.getOutputStream();
+            //读取文件流
+            int len;
+            byte[] buffer = new byte[1024 * 10];
+            while ((len = ips.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            out.flush();
+            out.close();
+            ips.close();
+        }
+    }
+
+    //批量下载pdf
+    public static void downloadPDFs(File dir, String[] filenames, HttpServletResponse response) {
 
     }
 }

@@ -10,10 +10,11 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 import javax.servlet.http.HttpSession;
 import java.util.Map;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 @Controller
@@ -47,7 +48,7 @@ public class RexxController {
             headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
             HttpEntity<String> requestQur = new HttpEntity<>(headers);
             //删除
-            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+rexxName;
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + rexxName;
             System.out.println(urlOverHttps);
             ResponseEntity<String> response = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.DELETE, requestQur, String.class);
             ResponseEntity.ok(response.getBody());
@@ -57,11 +58,10 @@ public class RexxController {
     }
 
 
-
     //获取数据集信息
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getdataset", method = RequestMethod.GET)
-    public ResponseEntity<String> getDataset(@RequestBody Map<String, String> map , HttpSession session) {
+    public ResponseEntity<String> getDataset(@RequestBody Map<String, String> map, HttpSession session) {
         String name = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
@@ -71,7 +71,7 @@ public class RexxController {
         if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
-            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+name;
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + name;
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
             headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
@@ -88,7 +88,7 @@ public class RexxController {
     //建立数据集
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/createDataset", method = RequestMethod.POST)
-    public ResponseEntity<String> createDataset(@RequestBody Map<String, String> map,HttpSession session) {
+    public ResponseEntity<String> createDataset(@RequestBody Map<String, String> map, HttpSession session) {
         String rexxName = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
@@ -104,7 +104,7 @@ public class RexxController {
                     = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //提交jcl的zosmf地址
-            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+rexxName;
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + rexxName;
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -130,7 +130,7 @@ public class RexxController {
     //建立分区数据集
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/createDatasetP", method = RequestMethod.POST)
-    public ResponseEntity<String> createDatasetP(@RequestBody Map<String, String> map,HttpSession session) {
+    public ResponseEntity<String> createDatasetP(@RequestBody Map<String, String> map, HttpSession session) {
         String rexxName = map.get("rexxName");
         //获取session
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
@@ -146,7 +146,7 @@ public class RexxController {
                     = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //提交jcl的zosmf地址
-            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+rexxName;
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + rexxName;
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -161,7 +161,7 @@ public class RexxController {
             object.put("avgblk", 500);
             object.put("recfm", "FB");
             object.put("blksize", 400);
-            object.put("dirblk",10);
+            object.put("dirblk", 10);
             object.put("lrecl", 80);
             //request
             HttpEntity<JSONObject> request = new HttpEntity<>(object, headers);
@@ -179,8 +179,8 @@ public class RexxController {
         Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        String name=map.get("rexxName");
-        String text=map.get("rexxCode");
+        String name = map.get("rexxName");
+        String text = map.get("rexxCode");
         if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
@@ -190,7 +190,7 @@ public class RexxController {
                     = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             //提交jcl的zosmf地址
-            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/"+name;
+            String urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restfiles/ds/" + name;
             //设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
@@ -240,7 +240,7 @@ public class RexxController {
             String line6 = "//SYSTSIN DD *                                 ";
             String line7 = "%" + rexxname + " " + input;
             String line8 = "/*                                              ";
-            String allLines = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", line1, line2, line3, line4, line5, line6,line7 ,line8);
+            String allLines = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", line1, line2, line3, line4, line5, line6, line7, line8);
             System.out.println(allLines);
             //提交jcl的request
             HttpEntity<String> requestSub = new HttpEntity<>(allLines, headers);

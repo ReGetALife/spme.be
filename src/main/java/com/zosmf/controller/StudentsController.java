@@ -1,6 +1,8 @@
 package com.zosmf.controller;
 
+import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.PDFUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +17,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/db")
 public class StudentsController {
+    @Value("${com.zosmf.controller.pdfBasePath}")
+    private String pdfBasePath;
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -35,21 +39,14 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getdraft", method = RequestMethod.POST)
     public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            //String uid = req.get("uid");
             String lab = req.get("lab");
             String step = req.get("step");
             String lower_lab = req.get("lower_lab");
-            String uid = ZOSMF_Account.toString();
-            //String question_id = req.get("question_id");
+            String uid = session.getAttribute("ZOSMF_Account").toString();
             String sql = "select question_id, answer ,is_draft from report where uid=? and lab=? and step=? and lower_lab=?";
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, uid, lab, step, lower_lab);
             if (list.size() == 0) {
@@ -64,19 +61,14 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subAnswer", method = RequestMethod.POST)
     public List<Map<String, Object>> subAnswer(@RequestBody List<Map<String, Object>> req, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
             String sql_search = "select * from report where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
             String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?);";
             String sql_update = "update report set answer=? where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
-            String uid = ZOSMF_Account.toString();
+            String uid = session.getAttribute("ZOSMF_Account").toString();
             for (Map<String, Object> stringObjectMap : req) {
                 //String uid = req.get(i).get("uid").toString();
                 String lab = stringObjectMap.get("lab").toString();
@@ -107,12 +99,7 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/confirmAnswer", method = RequestMethod.POST)
     public List<Map<String, Object>> confirmAnswer(@RequestBody Map<String, String> req, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
@@ -123,7 +110,7 @@ public class StudentsController {
             String lab = req.get("lab");
             String step = req.get("step");
             String lower_lab = req.get("lower_lab");
-            String uid = ZOSMF_Account.toString();
+            String uid = session.getAttribute("ZOSMF_Account").toString();
             List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab, step, lower_lab);
             if (result_list.size() == 0) {
                 throw new ResourceNotFoundException();
@@ -137,22 +124,15 @@ public class StudentsController {
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitLab", method = RequestMethod.POST)
     public ResponseEntity<String> submitLab(@RequestBody Map<String, String> data, HttpSession session) {
-        //获取session
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-        Object ZOSMF_Account = session.getAttribute("ZOSMF_Account");
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null || ZOSMF_Account == null) {
+        if (!AuthUtil.checkLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
             String sql_update = "update report set is_draft=? where uid=? and lab=?";
             String lab = data.get("lab");
-            String account = ZOSMF_Account.toString();
+            String account = session.getAttribute("ZOSMF_Account").toString();
             //修改数据库中is_draft字段
             jdbcTemplate.update(sql_update, "N", account, lab);
             //将报告生成到已提交报告文件夹下
-            String pdfBasePath = "/home/user/Documents/report/";
-//            String pdfBasePath = "./";
             File file = new File(pdfBasePath + "submitted/" + account + lab + ".pdf");
             if (!file.exists())
                 PDFUtil.generatePDF(account, lab, pdfBasePath + "submitted", jdbcTemplate);

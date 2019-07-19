@@ -1,5 +1,6 @@
 HELP.md
 /target/
+/report/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
