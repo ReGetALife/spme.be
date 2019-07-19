@@ -13,6 +13,8 @@ public class PDFUtilTest {
         File dir = new File("./report/submitted");
         File dest = new File("./report/" + new Date().getTime() + ".zip");
         String[] files = {"ST021RACF.pdf", "ST007RACF.pdf", "ST022RACF.pdf"};
+        if (!dir.exists() && !dir.mkdirs())
+            return;
         PDFUtil.generateZip(dir, dest, files);
     }
 }
