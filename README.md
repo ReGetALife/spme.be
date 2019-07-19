@@ -1,7 +1,7 @@
 # zosmf.be 
 
 <p align="left">
-<img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/zosmf.be.svg?color=black">
+<img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/zosmf.be.svg">
 <a href="https://travis-ci.com/ReGetALife/zosmf.be"><img src="https://travis-ci.com/ReGetALife/zosmf.be.svg?branch=master"></a>
 <a href='https://coveralls.io/github/ReGetALife/zosmf.be?branch=master'><img src='https://coveralls.io/repos/github/ReGetALife/zosmf.be/badge.svg?branch=master' alt='Coverage Status' /></a>
 <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/ReGetALife/zosmf.be.svg">
