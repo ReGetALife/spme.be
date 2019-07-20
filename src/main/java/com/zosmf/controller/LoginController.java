@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -124,11 +125,17 @@ public class LoginController {
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ResponseEntity<String> loginInfo(HttpSession session) {
+    public ResponseEntity<Object> loginInfo(HttpSession session) {
         if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
-            return ResponseEntity.ok(session.getAttribute("ZOSMF_Account").toString().toUpperCase());
+            Map<String,String> map = new HashMap<>();
+            map.put("uid",session.getAttribute("ZOSMF_Account").toString().toUpperCase());
+            if(AuthUtil.notTeacherLogin(session))
+                map.put("role", "student");
+            else
+                map.put("role", "teacher");
+            return ResponseEntity.ok().body(map);
         }
     }
 
