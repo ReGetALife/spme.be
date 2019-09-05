@@ -4,11 +4,10 @@ package com.zosmf.controller;
 import com.zosmf.utils.AuthUtil;
 import com.zosmf.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +32,8 @@ import java.util.Map;
 @Controller
 public class LoginController {
 
-    @Value("${com.zosmf.controller.teacherAuthFile}")
-    private String authFilePath;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -42,8 +41,8 @@ public class LoginController {
         if (AuthUtil.notLogin(session)) {
             Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
             Object ZOSMF_LtpaToken2;
-            Object ZOSMF_Address ;
-            Object ZOSMF_Account ;
+            Object ZOSMF_Address;
+            Object ZOSMF_Account;
             System.out.println("session未保存，从zosmf获取token并保存至session。");
 
             //获取zosmf地址
@@ -96,27 +95,14 @@ public class LoginController {
         //判断是否教师登录
         session.setAttribute("is_teacher", "no");
         try {
-            //读文件
-            String encoding = "UTF-8";
-            File file = new File(authFilePath);
-            if (file.isFile() && file.exists()) {
-                InputStreamReader read = new InputStreamReader(
-                        new FileInputStream(file), encoding);// 考虑到编码格式
-                BufferedReader bufferedReader = new BufferedReader(read);
-                String teacherPassHash = bufferedReader.readLine();
-                //假如密码匹配则赋予教师身份，同时记录连接地址
-                String teacherPass = account.get("teacherPass");
-                if (teacherPass != null
-                        && !teacherPass.equals("")
-                        && DigestUtils.md5DigestAsHex(teacherPass.getBytes()).equals(teacherPassHash)) {
-                    System.out.println(httpServletRequest.getRemoteAddr() + " login as teacher");
-                    session.setAttribute("is_teacher", "yes");
-
-                } else {
-                    System.out.println(httpServletRequest.getRemoteAddr() + " login as student");
-                }
-                read.close();
-            }
+            String sql = "select * from teacher where id=?";
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, session.getAttribute("ZOSMF_Account"));
+            if (list.size() > 0) {
+                //存在教师表中，赋予教师身份，同时记录连接地址
+                System.out.println(httpServletRequest.getRemoteAddr() + " login as teacher: " + session.getAttribute("ZOSMF_Account"));
+                session.setAttribute("is_teacher", "yes");
+            } else
+                System.out.println(httpServletRequest.getRemoteAddr() + " login as student: " + session.getAttribute("ZOSMF_Account"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -129,9 +115,9 @@ public class LoginController {
         if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
-            Map<String,String> map = new HashMap<>();
-            map.put("uid",session.getAttribute("ZOSMF_Account").toString().toUpperCase());
-            if(AuthUtil.notTeacherLogin(session))
+            Map<String, String> map = new HashMap<>();
+            map.put("uid", session.getAttribute("ZOSMF_Account").toString().toUpperCase());
+            if (AuthUtil.notTeacherLogin(session))
                 map.put("role", "student");
             else
                 map.put("role", "teacher");
