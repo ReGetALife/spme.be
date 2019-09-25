@@ -73,11 +73,10 @@ public class StudentsController {
             throw new UnauthorizedException();
         } else {
             String sql_search = "select * from report where uid=? and lab=?;";
-            String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?);";
-            String sql_update = "update report set answer=? where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
+            String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?)" +
+                    "on duplicate key update answer=?;";
             String uid = session.getAttribute("ZOSMF_Account").toString();
             for (Map<String, Object> stringObjectMap : req) {
-                //String uid = req.get(i).get("uid").toString();
                 String lab = stringObjectMap.get("lab").toString();
                 String answer = " ";
                 if (stringObjectMap.get("answer") != null) {
@@ -89,12 +88,12 @@ public class StudentsController {
 
                 List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
                 if (result_list.size() == 0) {
-                    jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer);
+                    jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer, answer);
                 } else {
                     if (result_list.get(0).get("is_draft").equals("N")) {
                         throw new ResourceNotFoundException();
                     } else {
-                        jdbcTemplate.update(sql_update, answer, uid, lab, step, lower_lab, question_id);
+                        jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer, answer);
                     }
                 }
             }
@@ -180,7 +179,7 @@ public class StudentsController {
             for (String lab : labs) {
                 List<Map<String, Object>> res = jdbcTemplate.queryForList(sql, account, lab);
                 Map<String, String> map = new HashMap<>();
-                map.put("lab",lab);
+                map.put("lab", lab);
                 if (res.size() == 0) {
                     map.put("status", "unsaved");
                 } else if (res.get(0).get("is_draft").equals("Y")) {
