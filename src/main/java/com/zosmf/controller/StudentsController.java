@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -133,7 +135,8 @@ public class StudentsController {
      * 提交一个大实验
      * 由于实验报告被设计为提交后便无法修改，因此无论该接口调用多少次，
      * 只要 submitted 目录下有对应的报告，便不会重复生成，因为我们认为实验报告不会也不可以更新。
-     * @param data 请求体数据
+     *
+     * @param data    请求体数据
      * @param session 服务器存储的会话内容
      * @return 成功则返回字符串"successful"
      * @author 李庆国
@@ -154,6 +157,40 @@ public class StudentsController {
             if (!file.exists())
                 PDFUtil.generatePDF(account, lab, pdfBasePath + "submitted", jdbcTemplate);
             return ResponseEntity.ok("successful");
+        }
+    }
+
+    /**
+     * 获取所有实验的状态
+     * 状态为未保存，已保存，已提交
+     * 这里的 5 个大实验是写死的。如果大实验有变动需要修改代码（不会的）。
+     *
+     * @author 李庆国
+     */
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/getLabStatus", method = RequestMethod.GET)
+    public ResponseEntity<List<Map<String, String>>> getLabStatus(HttpSession session) {
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
+        } else {
+            String account = session.getAttribute("ZOSMF_Account").toString();
+            String[] labs = {"RACF", "SMS", "CATALOG", "REXX", "MVS"};
+            String sql = "select is_draft from report where uid=? and lab=?";
+            List<Map<String, String>> ans = new ArrayList<>();
+            for (String lab : labs) {
+                List<Map<String, Object>> res = jdbcTemplate.queryForList(sql, account, lab);
+                Map<String, String> map = new HashMap<>();
+                map.put("lab",lab);
+                if (res.size() == 0) {
+                    map.put("status", "unsaved");
+                } else if (res.get(0).get("is_draft").equals("Y")) {
+                    map.put("status", "saved");
+                } else {
+                    map.put("status", "submitted");
+                }
+                ans.add(map);
+            }
+            return ResponseEntity.ok(ans);
         }
     }
 }
