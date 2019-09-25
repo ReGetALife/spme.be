@@ -70,19 +70,22 @@ public class StudentsController {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            String sql_search = "select * from report where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
+            String sql_search = "select * from report where uid=? and lab=?;";
             String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?);";
             String sql_update = "update report set answer=? where uid=? and lab=? and step=? and lower_lab=? and question_id=?;";
             String uid = session.getAttribute("ZOSMF_Account").toString();
             for (Map<String, Object> stringObjectMap : req) {
                 //String uid = req.get(i).get("uid").toString();
                 String lab = stringObjectMap.get("lab").toString();
-                String answer = stringObjectMap.get("answer").toString();
+                String answer = " ";
+                if (stringObjectMap.get("answer") != null) {
+                    answer = stringObjectMap.get("answer").toString();
+                }
                 String step = stringObjectMap.get("step").toString();
                 String lower_lab = stringObjectMap.get("lower_lab").toString();
                 String question_id = stringObjectMap.get("question_id").toString();
 
-                List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab, step, lower_lab, question_id);
+                List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
                 if (result_list.size() == 0) {
                     jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer);
                 } else {
@@ -126,6 +129,15 @@ public class StudentsController {
         }
     }
 
+    /**
+     * 提交一个大实验
+     * 由于实验报告被设计为提交后便无法修改，因此无论该接口调用多少次，
+     * 只要 submitted 目录下有对应的报告，便不会重复生成，因为我们认为实验报告不会也不可以更新。
+     * @param data 请求体数据
+     * @param session 服务器存储的会话内容
+     * @return 成功则返回字符串"successful"
+     * @author 李庆国
+     */
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/submitLab", method = RequestMethod.POST)
     public ResponseEntity<String> submitLab(@RequestBody Map<String, String> data, HttpSession session) {
