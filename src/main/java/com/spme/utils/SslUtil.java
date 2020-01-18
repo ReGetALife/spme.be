@@ -1,4 +1,4 @@
-package com.zosmf.utils;
+package com.spme.utils;
 
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;

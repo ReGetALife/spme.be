@@ -1,4 +1,4 @@
-package com.zosmf;
+package com.spme;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

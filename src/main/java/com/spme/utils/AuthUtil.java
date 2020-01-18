@@ -1,4 +1,4 @@
-package com.zosmf.utils;
+package com.spme.utils;
 
 import javax.servlet.http.HttpSession;
 

@@ -1,8 +1,8 @@
-package com.zosmf.controller;
+package com.spme.controller;
 
 
-import com.zosmf.utils.AuthUtil;
-import com.zosmf.utils.SslUtil;
+import com.spme.utils.AuthUtil;
+import com.spme.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;

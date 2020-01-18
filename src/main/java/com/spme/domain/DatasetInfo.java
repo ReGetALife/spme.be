@@ -1,4 +1,4 @@
-package com.zosmf.domain;
+package com.spme.domain;
 
 public class DatasetInfo {
 

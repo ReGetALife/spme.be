@@ -1,7 +1,7 @@
-package com.zosmf.controller;
+package com.spme.controller;
 
-import com.zosmf.utils.AuthUtil;
-import com.zosmf.utils.PDFUtil;
+import com.spme.utils.AuthUtil;
+import com.spme.utils.PDFUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -1,10 +1,10 @@
-package com.zosmf.controller;
+package com.spme.controller;
 
 
-import com.zosmf.domain.DatasetInfo;
-import com.zosmf.domain.JCLInfo;
-import com.zosmf.domain.JobInfo;
-import com.zosmf.utils.SslUtil;
+import com.spme.domain.DatasetInfo;
+import com.spme.domain.JCLInfo;
+import com.spme.domain.JobInfo;
+import com.spme.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.http.*;
