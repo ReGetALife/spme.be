@@ -1,10 +1,8 @@
 # spme.be 
 
 <p align="left">
-<img alt="GitHub" src="https://img.shields.io/github/license/ReGetALife/spme.be.svg">
-<a href="https://travis-ci.com/ReGetALife/spme.be"><img src="https://travis-ci.com/ReGetALife/spme.be.svg?branch=master"></a>
-<a href='https://coveralls.io/github/ReGetALife/spme.be?branch=master'><img src='https://coveralls.io/repos/github/ReGetALife/spme.be/badge.svg?branch=master' alt='Coverage Status' /></a>
-<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/ReGetALife/spme.be.svg">
+<a href ="https://github.com/ReGetALife/spme.be/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/badge/license-MIT-blue"></a>
+<a href="https://travis-ci.com/ReGetALife/spme.be"><img src="https://travis-ci.com/ReGetALife/spme.be.svg?token=xxdBSxeuzqfeBx7LkjpY&branch=master"></a>
 </p>
 
 This is the back-end project of a simulation platform of mainframe experiment at Tongji University, which is based on z/OSMF REST APIs . 
