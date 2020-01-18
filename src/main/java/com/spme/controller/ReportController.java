@@ -21,7 +21,7 @@ import java.util.*;
 @RequestMapping("/db")
 public class ReportController {
 
-    @Value("${com.zosmf.controller.pdfBasePath}")
+    @Value("${com.spme.controller.pdfBasePath}")
     private String pdfBasePath;
 
     @Resource
