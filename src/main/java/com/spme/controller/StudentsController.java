@@ -24,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/db")
 public class StudentsController {
-    @Value("${com.zosmf.controller.pdfBasePath}")
+    @Value("${com.spme.controller.pdfBasePath}")
     private String pdfBasePath;
 
     @Resource
