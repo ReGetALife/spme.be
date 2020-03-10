@@ -1,4 +1,5 @@
 #!/bin/bash -v
 
-echo 'mvn package'
-mvn package
+chmod +x ./mvnw
+
+./mvnw package
