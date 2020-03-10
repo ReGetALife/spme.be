@@ -37,9 +37,18 @@ mvn package
 java -jar target/be-0.0.1-SNAPSHOT.jar
 ```
 
+#### Useful Ports
+
+- 20200 Jenkins
+- 20201 Site(front-end)
+- 20202 API(back-end)
+- 20203 MySQL
+
 ### Built With
 
 * [Spring Boot](https://spring.io/projects/spring-boot) - Java Web Framework
 * [Maven](https://maven.apache.org/) - Dependency Management
 * [IntelliJ IDEA](https://www.jetbrains.com/idea/) - IDE
 * [YApi](https://github.com/YMFE/yapi) - API Management
+* [Travis CI](https://travis-ci.com/) - Continuous Integration
+* [Jenkins](https://jenkins.io) - Continuous Deployment
