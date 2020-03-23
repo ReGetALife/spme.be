@@ -86,6 +86,19 @@ public class LoginService {
         }
     }
 
+    /**
+     * fake login bypassing zosmf
+     * for develop only
+     */
+    @SuppressWarnings("unused")
+    public String login2(Map<String, String> account, HttpSession session) {
+        session.setAttribute("ZOSMF_JSESSIONID", "fakeId");
+        session.setAttribute("ZOSMF_LtpaToken2", "fakeToken");
+        session.setAttribute("ZOSMF_Address", account.get("address"));
+        session.setAttribute("ZOSMF_Account", account.get("account").toUpperCase());
+        return "successful";
+    }
+
     public void setRole(HttpSession session) {
         //判断是否教师登录
         session.setAttribute("is_teacher", "no");
