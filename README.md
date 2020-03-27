@@ -37,6 +37,11 @@ mvn package
 java -jar target/be-0.0.1-SNAPSHOT.jar
 ```
 
+#### Running jar with develop properties
+
+```bash
+java -jar target/be-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+```
 #### Useful Ports
 
 - 20200 Jenkins
