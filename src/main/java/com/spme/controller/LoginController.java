@@ -10,18 +10,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**
- * 登录，登出和登录状态检查
+ * login, logout and getting login info
  *
  * @author 李庆国
  */
 @Controller
 public class LoginController {
 
-    private LoginService ls = new LoginService();
+    /**
+     * Do not new an object, if you did, auto injection would not work e.g. you would
+     * get a null variable while using auto injection inside that object
+     */
+    @Resource
+    private LoginService ls;
 
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/login", method = RequestMethod.POST)

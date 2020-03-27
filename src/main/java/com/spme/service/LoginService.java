@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +23,7 @@ import java.util.Map;
 /**
  * @author 李庆国
  */
+@Service
 public class LoginService {
 
     @Resource
@@ -81,7 +83,7 @@ public class LoginService {
 
             return "successful";
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return "time out";
         }
     }
@@ -104,13 +106,13 @@ public class LoginService {
         session.setAttribute("is_teacher", "no");
         try {
             String sql = "select * from teacher where id=?";
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, session.getAttribute("ZOSMF_Account"));
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, session.getAttribute("ZOSMF_Account").toString());
             if (list.size() > 0) {
                 //存在教师表中，赋予教师身份
                 session.setAttribute("is_teacher", "yes");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
