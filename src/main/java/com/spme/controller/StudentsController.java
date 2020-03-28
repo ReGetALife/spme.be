@@ -42,9 +42,9 @@ public class StudentsController {
     private class SqlOKException extends RuntimeException {
     }
 
-    //获取草稿
+    //获取草稿，没有草稿的返回的answer字段为空
     @CrossOrigin(origins = "*", allowCredentials = "true")
-    @RequestMapping(value = "/getdraft", method = RequestMethod.POST)
+    @RequestMapping(value = "/getDraft", method = RequestMethod.POST)
     public List<Map<String, Object>> getDraft(@RequestBody Map<String, String> req, HttpSession session) {
         if (AuthUtil.notLogin(session)) {
             //没有token信息，授权失败
@@ -54,13 +54,20 @@ public class StudentsController {
             String step = req.get("step");
             String lower_lab = req.get("lower_lab");
             String uid = session.getAttribute("ZOSMF_Account").toString();
-            String sql = "select question_id, answer ,is_draft from report where uid=? and lab=? and step=? and lower_lab=?";
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, uid, lab, step, lower_lab);
-            if (list.size() == 0) {
-                throw new ResourceNotFoundException();
-            } else {
-                return list;
+            String sql1 = "select question_id from question where lab=? and step=? and lower_lab=?";
+            String sql2 = "select question_id, answer from report where uid=? and lab=? and step=? and lower_lab=?";
+            List<Map<String, Object>> allStepQuestionsList = jdbcTemplate.queryForList(sql1, lab, step, lower_lab);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql2, uid, lab, step, lower_lab);
+            for(Map<String, Object> q : allStepQuestionsList) {
+                q.put("answer", "");//fallback
+                for (Map<String, Object> a: list){
+                    if(q.get("question_id").toString().equals(a.get("question_id").toString())) {
+                        q.put("answer", a.get("answer"));
+                        break;
+                    }
+                }
             }
+            return allStepQuestionsList;
         }
     }
 
