@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * @author 徐仁和
+ * @deprecated Duplicated with racf/JCLjob api -- Qingguo Li
  */
 @Controller
 public class CatalogController {

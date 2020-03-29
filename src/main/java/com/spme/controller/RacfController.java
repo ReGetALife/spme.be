@@ -62,9 +62,9 @@ public class RacfController {
 
             for (int i = 0; i < 10; i++) {
                 try {
-                    Thread.sleep(200);//毫秒
+                    Thread.sleep(1000);//毫秒
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
                 //查询执行状态的地址
                 if (responseSub.getBody() != null) {
@@ -80,19 +80,32 @@ public class RacfController {
                         String JESJCL_url = urlOverHttps + "/files/3/records";
                         String JESYSMSG_url = urlOverHttps + "/files/4/records";
                         String SYSPRINT_url = urlOverHttps + "/files/102/records";
-                        ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
-                        res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
-                        ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
-                        res_jclinfo.setJESJCL(res_JESJCL.getBody());
-                        ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
-                        res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
-                        ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
-                        res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
-                        return new ResponseEntity<>(res_jclinfo, HttpStatus.OK);
+                        try {
+                            ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
+                            res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
+                            res_jclinfo.setJESJCL(res_JESJCL.getBody());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
+                            res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
+                            res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-                        //urlOverHttps = urlOverHttps + "/files/102/records";
-                        //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
-                        //return ResponseEntity.ok(result.getBody());
+                        return new ResponseEntity<>(res_jclinfo, HttpStatus.OK);
                     }
                 }
             }
@@ -126,17 +139,31 @@ public class RacfController {
             headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
 
             //获取命令
-            StringBuilder command = new StringBuilder();
+            String command = "";
             if (commBody.get("command") != null && !commBody.get("command").equals("")) {
-                command.append(commBody.get("command")).append(" ");
+                command = commBody.get("command");
             }
-
-            System.out.println(command.toString());
-
-            String formatCommand = command.toString();
-            formatCommand = formatCommand.replace('\n', ' ');
-            formatCommand = formatCommand.replace('\r', ' ');
-            System.out.println(formatCommand);
+            //分割多个命令
+            String[] cmds = command.split(";");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < cmds.length; i++) {
+                //整理一下格式，把（连续的）空格、换行替换成一个空格
+                cmds[i] = cmds[i].replaceAll("[ \n\r]+", " ");
+                cmds[i] = cmds[i].trim();
+                //命令太长需要处理
+                if (cmds[i].length() > 72) {
+                    cmds[i] = cmds[i].replaceAll(" ", " -\n");
+                }
+                if (cmds[i].length() == 0) {
+                    continue;
+                }
+                if (i == cmds.length - 1) {
+                    sb.append(cmds[i]);
+                } else {
+                    sb.append(cmds[i]).append("\n");
+                }
+            }
+            command = sb.toString();
 
             //添加body中的text
             String line1 = "//RACFTRY JOB CLASS=A,MSGLEVEL=(1,1),MSGCLASS=H,";
@@ -145,7 +172,7 @@ public class RacfController {
             String line4 = "//SYSPRINT DD DUMMY                             ";
             String line5 = "//SYSTSPRT DD SYSOUT=*                          ";
             String line6 = "//SYSTSIN  DD *                                 ";
-            String line7 = "  " + formatCommand;//command.toString();
+            String line7 = command;
             String line8 = "/*                                              ";
             String allLines = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", line1, line2, line3, line4, line5, line6, line7, line8);
             //提交jcl的request
@@ -155,9 +182,9 @@ public class RacfController {
 
             for (int i = 0; i < 10; i++) {
                 try {
-                    Thread.sleep(200);//
+                    Thread.sleep(1000);//
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
                 //查询执行状态的地址
                 if (responseSub.getBody() != null) {
@@ -182,13 +209,6 @@ public class RacfController {
                         ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
                         res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
                         return new ResponseEntity<>(res_jclinfo, HttpStatus.OK);
-
-                        //urlOverHttps = urlOverHttps + "/files/102/records";
-                        //ResponseEntity<String> result = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, String.class);
-                        //String resultBody = "";
-                        //resultBody = result.getBody();
-                        //System.out.println(res_jclinfo.getJESJCL().toString());
-                        //return ResponseEntity.ok(result.getBody());
                     }
                 }
             }
