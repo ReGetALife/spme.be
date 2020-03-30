@@ -248,7 +248,7 @@ public class ReportController {
         }
     }
 
-    //获取大实验、小实验、步骤下的所有问题
+    //获取大实验、小实验下的所有问题
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getQuestions", method = RequestMethod.POST)
     public List<Map<String, Object>> getQuestions(@RequestBody Map<String, String> req, HttpSession session) {
@@ -257,10 +257,9 @@ public class ReportController {
             throw new UnauthorizedException();
         } else {
             String lab = req.get("lab");
-            String step = req.get("step");
             String lower_lab = req.get("lower_lab");
-            String sql = "select question_id, question from question where lab=? and step=? and lower_lab=?";
-            List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, lab, step, lower_lab);
+            String sql = "select step, question_id, question from question where lab=? and lower_lab=?";
+            List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, lab, lower_lab);
             if (result.size() == 0) {
                 throw new ResourceNotFoundException();
             } else {
