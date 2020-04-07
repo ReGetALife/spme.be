@@ -116,7 +116,7 @@ public class ReportController {
         }
     }
 
-    //学生查看发布的成绩，未发布时返回返回ResourseNotFound的异常
+    //学生查看发布的成绩，未发布任何成绩时返回空数组
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/checkScore", method = RequestMethod.GET)
     public List<Map<String, Object>> checkScore(HttpSession session) {
@@ -125,26 +125,15 @@ public class ReportController {
             throw new UnauthorizedException();
         } else {
             String uid = session.getAttribute("ZOSMF_Account").toString();
-            //String uid = "ST009";
-            System.out.println(uid);
             String sql_search = "select * from result where uid=?";
-            List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid);
-            List<Map<String, Object>> result_return = new ArrayList<>();
-            System.out.println(result_list);
-            if (result_list.size() == 0) {
-                throw new ResourceNotFoundException();
-            } else {
-                for (Map<String, Object> stringObjectMap : result_list) {
-                    if (stringObjectMap.get("is_release").equals(1)) {
-                        result_return.add(stringObjectMap);
-                    }
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql_search, uid);
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Map<String, Object> stringObjectMap : list) {
+                if (stringObjectMap.get("is_release").equals(1)) {
+                    result.add(stringObjectMap);
                 }
             }
-            if (result_return.size() == 0) {
-                throw new ResourceNotFoundException();
-            } else {
-                return result_return;
-            }
+            return result;
         }
     }
 
