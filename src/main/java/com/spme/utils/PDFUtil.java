@@ -10,8 +10,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -23,64 +26,73 @@ import java.util.zip.ZipOutputStream;
  */
 public class PDFUtil {
 
-    //生成某个学生的的实验报告的pdf
+    /**
+     * Generate lab report of a certain uid
+      * @param uid uid
+     * @param lab lab name of this report
+     * @param path path to store generated report
+     * @param template jdbc template
+     */
     public static void generatePDF(String uid, String lab, String path, JdbcTemplate template) {
-        String sql = "select * from report natural join question where uid=? and lab=? order by lower_lab, step, question_id";
-        List<Map<String, Object>> list = template.queryForList(sql, uid, lab);
-        if (list.size() != 0) {
-            Document document = new Document();
-//                BaseFont bfChinese = null;
-            try {
-                BaseFont font = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-                Font cf_lower_lab = new Font(font, 16, Font.BOLD);
-                Font cf_step = new Font(font, 12, Font.BOLD);
-                Font cf_question = new Font(font, 8, Font.BOLD);
-                Font cf_answer = new Font(font, 8, Font.NORMAL);
-                //创建保存目录
-                File dir = new File(path);
-                if (!dir.exists() && !dir.mkdirs()) {
-                    throw new IOException();
-                }
-                File file = new File(dir, uid + lab + ".pdf");
-                PdfWriter.getInstance(document, new FileOutputStream(file));
-                document.open();
-                Paragraph title = new Paragraph(lab, FontFactory.getFont(FontFactory.HELVETICA, 24,
-                        Font.BOLD, new CMYKColor(0, 255, 255, 17)));
-                Chapter chapter1 = new Chapter(title, 1);
-                chapter1.setNumberDepth(0);
-                document.add(chapter1);
-                Paragraph title_lower;
-                Section section_lower = chapter1.addSection("");
-                section_lower.setNumberDepth(0);
-                Object currentLab = 0, currentStep = 0;
-                for (Map<String, Object> m : list) {
-                    if (currentLab != m.get("lower_lab")) {
-                        title_lower = new Paragraph("实验" + m.get("lower_lab"), cf_lower_lab);
-                        if (section_lower != chapter1.addSection("")) {
-                            document.add(section_lower);
-                        }
-                        section_lower = chapter1.addSection(title_lower);
-                        section_lower.setNumberDepth(0);
-                        currentLab = m.get("lower_lab");
-                    }
-                    if (currentStep != m.get("step")) {
-                        title_lower = new Paragraph("步骤" + m.get("step"), cf_step);
-                        //title_lower.setFont(font);
-                        section_lower.add(title_lower);
-                        currentStep = m.get("step");
-                    }
-                    title_lower = new Paragraph("题目" + m.get("question_id") + "  " + m.get("question"), cf_question);
-                    section_lower.add(title_lower);
-                    title_lower = new Paragraph("回答:" + m.get("answer"), cf_answer);
-                    section_lower.add(title_lower);
-                }
-                document.add(section_lower);
-                document.close();
-                //File file = new File("D:\\" + uid + lab + ".pdf");
-                //file.delete();
-            } catch (DocumentException | IOException de) {
-                de.printStackTrace();
+        String sql = "select * from question natural left join (select * from report where uid=?) as r where lab=? order by lower_lab, step, question_id";
+        List<Map<String, Object>> questionsWithAnswer = template.queryForList(sql, uid, lab);
+        // resolve data
+        Map<Integer, Map<Integer, Map<Integer, String[]>>> subLabs = new TreeMap<>();
+        for (Map<String, Object> q : questionsWithAnswer) {
+            Integer subLab = Integer.valueOf(q.get("lower_lab").toString());
+            Integer step = Integer.valueOf(q.get("step").toString());
+            Integer question = Integer.valueOf(q.get("question_id").toString());
+            if (!subLabs.containsKey(subLab)) {
+                subLabs.put(subLab, new TreeMap<>());
             }
+            Map<Integer, Map<Integer, String[]>> steps = subLabs.get(subLab);
+            if (!steps.containsKey(step)) {
+                steps.put(step, new TreeMap<>());
+            }
+            Map<Integer, String[]> qs = steps.get(step);
+            String answer = q.get("answer") == null ? "" : q.get("answer").toString();
+            qs.put(question, new String[]{q.get("question").toString(), answer});
+        }
+        // write data
+        try {
+            Document document = new Document();
+            // available fonts in text-asian package can be found in itext-asian-5.2.0.jar!/com/itextpdf/text/pdf/fonts/cmaps/cjk_registry.properties
+            // ref: https://blog.csdn.net/weixin_41807385/article/details/98478061
+            BaseFont font = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+            Font cf_lower_lab = new Font(font, 16, Font.BOLD);
+            Font cf_step = new Font(font, 12, Font.BOLD);
+            Font cf_question = new Font(font, 8, Font.BOLD);
+            Font cf_answer = new Font(font, 8, Font.NORMAL);
+            File dir = new File(path);
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new IOException();
+            }
+            File file = new File(dir, uid + lab + ".pdf");
+            PdfWriter.getInstance(document, new FileOutputStream(file));
+            document.open();
+            // write uid and time
+            Paragraph uidAndTime = new Paragraph(uid + "    "+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            uidAndTime.setAlignment(Paragraph.ALIGN_RIGHT);
+            document.add(uidAndTime);
+            // write lab name
+            Paragraph pLab = new Paragraph(lab, FontFactory.getFont(FontFactory.HELVETICA, 24,
+                    Font.BOLD, new CMYKColor(0, 255, 255, 17)));
+            document.add(pLab);
+            for (Map.Entry<Integer, Map<Integer, Map<Integer, String[]>>> subLabEntry : subLabs.entrySet()) {
+                // write sub lab name
+                document.add(new Paragraph("\n实验" + subLabEntry.getKey(), cf_lower_lab));
+                for (Map.Entry<Integer, Map<Integer, String[]>> stepEntry : subLabEntry.getValue().entrySet()) {
+                    // write step name
+                    document.add(new Paragraph("\n步骤" + stepEntry.getKey(), cf_step));
+                    for (Map.Entry<Integer, String[]> questionEntry : stepEntry.getValue().entrySet()) {
+                        document.add(new Paragraph("题目" + questionEntry.getKey() + "    " + questionEntry.getValue()[0], cf_question));
+                        document.add(new Paragraph(questionEntry.getValue()[1] + "\n", cf_answer));
+                    }
+                }
+            }
+            document.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
