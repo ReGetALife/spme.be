@@ -1,7 +1,7 @@
 package com.spme.controller;
 
 import com.spme.utils.AuthUtil;
-import com.spme.utils.PDFUtil;
+import com.spme.utils.PdfUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -147,11 +147,11 @@ public class ReportController {
         } else {
             //生成pdf
             String uid = session.getAttribute("ZOSMF_Account").toString();
-            PDFUtil.generatePDF(uid, lab, pdfBasePath + "preview", jdbcTemplate);
+            PdfUtil.generatePDF(uid, lab, pdfBasePath + "preview", jdbcTemplate);
             //返回实验报告pdf
             String filename = uid + lab + ".pdf";
             File file = new File(pdfBasePath + "preview/" + filename);
-            PDFUtil.downloadFile(file, response);
+            PdfUtil.downloadFile(file, response);
         }
     }
 
@@ -230,7 +230,7 @@ public class ReportController {
                 String lab = req.get("lab").toString();
                 String filename = uid + lab + ".pdf";
                 File file = new File(dir + filename);
-                PDFUtil.downloadFile(file, response);
+                PdfUtil.downloadFile(file, response);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -269,9 +269,9 @@ public class ReportController {
             //存放压缩文件的目标
             File dest = new File(pdfBasePath + new Date().getTime() + ".zip");
             //生成压缩文件
-            PDFUtil.generateZip(new File(dir), dest, filenames);
+            PdfUtil.generateZip(new File(dir), dest, filenames);
             //传输文件
-            PDFUtil.downloadFile(dest, response);
+            PdfUtil.downloadFile(dest, response);
             //删除临时文件
             if (!dest.delete())
                 throw new IOException("temporary zip file cannot delete");

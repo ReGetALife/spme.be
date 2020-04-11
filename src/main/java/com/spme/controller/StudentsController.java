@@ -1,7 +1,7 @@
 package com.spme.controller;
 
 import com.spme.utils.AuthUtil;
-import com.spme.utils.PDFUtil;
+import com.spme.utils.PdfUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -167,7 +167,7 @@ public class StudentsController {
             //将报告生成到已提交报告文件夹下
             File file = new File(pdfBasePath + "submitted/" + account + lab + ".pdf");
             if (!file.exists())
-                PDFUtil.generatePDF(account, lab, pdfBasePath + "submitted", jdbcTemplate);
+                PdfUtil.generatePDF(account, lab, pdfBasePath + "submitted", jdbcTemplate);
             return ResponseEntity.ok("successful");
         }
     }

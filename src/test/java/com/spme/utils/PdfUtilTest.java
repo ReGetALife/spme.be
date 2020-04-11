@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-public class PDFUtilTest {
+public class PdfUtilTest {
 
     @Test
     public void generateZip() throws IOException {
@@ -15,6 +15,6 @@ public class PDFUtilTest {
         String[] files = {"ST021RACF.pdf", "ST007RACF.pdf", "ST022RACF.pdf"};
         if (!dir.exists() && !dir.mkdirs())
             return;
-        PDFUtil.generateZip(dir, dest, files);
+        PdfUtil.generateZip(dir, dest, files);
     }
 }

@@ -24,7 +24,7 @@ import java.util.zip.ZipOutputStream;
  * @author 李庆国
  * @author 徐仁和
  */
-public class PDFUtil {
+public class PdfUtil {
 
     /**
      * Generate lab report of a certain uid
