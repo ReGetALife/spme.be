@@ -42,6 +42,9 @@ public class StudentsController {
     private class SqlOKException extends RuntimeException {
     }
 
+    /**
+     * @deprecated Please use api GET /draft
+     */
     //获取草稿，没有草稿的返回的answer字段为空
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/getDraft", method = RequestMethod.POST)
@@ -71,6 +74,9 @@ public class StudentsController {
         }
     }
 
+    /**
+     * @deprecated Please use api POST /draft
+     */
     //学生上传草稿
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/subAnswer", method = RequestMethod.POST)
