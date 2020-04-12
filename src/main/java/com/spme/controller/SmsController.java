@@ -217,7 +217,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -428,7 +428,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -510,7 +510,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -591,7 +591,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -673,7 +673,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -756,7 +756,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -839,7 +839,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -924,7 +924,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1013,7 +1013,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1101,7 +1101,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1188,7 +1188,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1275,7 +1275,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1356,7 +1356,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
@@ -1444,7 +1444,7 @@ public class SmsController {
                     System.out.println(e.getMessage());
                 }
                 //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                 //查询结果
                 HttpEntity<String> requestQur = new HttpEntity<>(headers);
                 ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);

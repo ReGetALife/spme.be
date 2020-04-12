@@ -246,7 +246,7 @@ public class RexxController {
                 }
                 //查询执行状态的地址
                 if (responseSub.getBody() != null) {
-                    urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobname() + "/" + responseSub.getBody().getJobid();
+                    urlOverHttps = "https://" + ZOSMF_Address.toString() + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
                     //查询结果的request
                     HttpEntity<String> requestQur = new HttpEntity<>(headers);
                     ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
