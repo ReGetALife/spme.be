@@ -1,5 +1,8 @@
 package com.spme.domain;
 
+/**
+ * @deprecated It is better to use JobOutputListItem. This entity will be removed later.
+ */
 public class JCLInfo {
     private String JESMSGLG;
     private String JESJCL;
