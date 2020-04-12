@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * @author 李天阳
+ * @deprecated Duplicated with /jcl & /cmd api -- Qingguo Li
  */
 @Controller
 public class RacfController {
