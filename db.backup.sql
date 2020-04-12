@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 8.0.16, for Win64 (x86_64)
 --
--- Host: 10.60.43.40    Database: report
+-- Host: 139.199.75.41    Database: report
 -- ------------------------------------------------------
--- Server version	8.0.16
+-- Server version	5.7.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,7 +29,7 @@ CREATE TABLE `question` (
   `lower_lab` int(10) NOT NULL,
   `question_id` int(10) NOT NULL,
   PRIMARY KEY (`lab`,`step`,`lower_lab`,`question_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,11 +58,9 @@ CREATE TABLE `report` (
   `question_id` int(10) NOT NULL,
   `is_draft` varchar(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`lab`,`uid`,`step`,`lower_lab`,`question_id`),
-  KEY `user_id_idx` (`uid`),
   KEY `foreign_question_idx` (`lab`,`step`,`lower_lab`,`question_id`),
-  CONSTRAINT `foreign_question` FOREIGN KEY (`lab`, `step`, `lower_lab`, `question_id`) REFERENCES `question` (`lab`, `step`, `lower_lab`, `question_id`),
-  CONSTRAINT `user_id` FOREIGN KEY (`uid`) REFERENCES `student` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `foreign_question` FOREIGN KEY (`lab`, `step`, `lower_lab`, `question_id`) REFERENCES `question` (`lab`, `step`, `lower_lab`, `question_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +69,7 @@ CREATE TABLE `report` (
 
 LOCK TABLES `report` WRITE;
 /*!40000 ALTER TABLE `report` DISABLE KEYS */;
-INSERT INTO `report` VALUES ('CATALOG','ST000','88',2,1,1,'Y'),('CATALOG','ST006','再次测试保存草稿',2,1,1,'Y'),('CATALOG','ST007','sdfdsf',2,1,1,'Y'),('CATALOG','ST007','dsfdsfsfdsfdsf',2,2,1,'Y'),('CATALOG','ST019','dwa',1,3,1,'Y'),('CATALOG','ST019','徐',2,1,1,'Y'),('CATALOG','ST019','ADW',2,2,1,'Y'),('CATALOG','ST019','是按时',2,4,1,'Y'),('CATALOG','ST019','asd',2,4,2,'Y'),('CATALOG','ST019','都是',4,4,1,'Y'),('CATALOG','ST019','是',4,4,2,'Y'),('CATALOG','ST021','adfdsfafd',1,3,1,'Y'),('CATALOG','ST021','safdfa',1,8,1,'Y'),('RACF','IBMUSER','1',1,1,1,'Y'),('RACF','IBMUSER','2',1,1,2,'Y'),('RACF','ST000','STGRP、RACFLAB',1,1,1,'N'),('RACF','ST000','1',1,1,2,'N'),('RACF','ST000','1',1,1,3,'N'),('RACF','ST000','1',1,1,4,'N'),('RACF','ST000',' ',2,1,1,'N'),('RACF','ST000',' ',2,1,2,'N'),('RACF','ST000',' ',2,1,3,'N'),('RACF','ST006','STGRP',1,1,1,'N'),('RACF','ST006','SPECIAL',1,1,2,'N'),('RACF','ST006','SPECIAL',1,1,3,'N'),('RACF','ST006','USER',1,1,4,'N'),('RACF','ST006','实验二的答案',1,2,1,'N'),('RACF','ST006','实验二的答案',1,2,2,'N'),('RACF','ST006','实验二的答案',1,2,3,'N'),('RACF','ST006','实验二的答案',1,2,4,'N'),('RACF','ST006','实验二的答案',1,2,5,'N'),('RACF','ST006','试试',1,3,1,'N'),('RACF','ST006','test',1,3,2,'N'),('RACF','ST006','不会',1,6,1,'N'),('RACF','ST006','不会',1,6,2,'N'),('RACF','ST006','HHHH',2,1,1,'N'),('RACF','ST006','222',2,4,1,'N'),('RACF','ST006','改天回答',3,4,1,'N'),('RACF','ST006','改天回答',4,4,1,'N'),('RACF','ST007','233',1,1,1,'N'),('RACF','ST007','2324234232',1,1,2,'N'),('RACF','ST007','4342423',1,1,3,'N'),('RACF','ST007','2342423423',1,1,4,'N'),('RACF','ST007','sf',2,1,1,'N'),('RACF','ST007','sdfsd',2,1,2,'N'),('RACF','ST007','fsdfsdf',2,1,3,'N'),('RACF','ST007','8888',2,2,1,'N'),('RACF','ST012','改天回答',1,1,1,'Y'),('RACF','ST012','改天回答',1,1,2,'Y'),('RACF','ST017','123',1,1,1,'Y'),('RACF','ST017','23',1,1,2,'Y'),('RACF','ST017','34',1,1,3,'Y'),('RACF','ST017','45',1,1,4,'Y'),('RACF','ST017','test1',2,1,1,'Y'),('RACF','ST017','test2',2,1,2,'Y'),('RACF','ST017','test3',2,1,3,'Y'),('RACF','ST017','AG',3,1,1,'Y'),('RACF','ST017','1212',3,1,2,'Y'),('RACF','ST019','改天回答',1,1,1,'Y'),('RACF','ST019','改天回答',1,1,2,'Y'),('RACF','ST021','改天回答',1,1,1,'Y'),('RACF','ST021','改天回答',1,1,2,'Y'),('RACF','ST021','改天回答',1,1,3,'Y'),('RACF','ST021','改天回答',1,1,4,'Y'),('RACF','ST021','dfsf',1,4,1,'Y'),('RACF','ST021','改天回答',2,1,1,'Y'),('RACF','ST021','改天回答',2,1,2,'Y'),('RACF','ST021','改天回答',2,1,3,'Y'),('RACF','ST021','dfsd',2,4,1,'Y'),('RACF','ST021','改天回答',3,1,1,'Y'),('RACF','ST021','改天回答',3,1,2,'Y'),('RACF','ST021','改天回答',3,4,1,'Y'),('RACF','ST021','改天回答',4,1,1,'Y'),('RACF','ST021','改天回答',4,1,2,'Y'),('RACF','ST021','改天回答',5,1,1,'Y'),('RACF','ST021','改天回答',6,1,1,'Y'),('REXX','ST000','/* MATH REXX      */\nSAY \"Please enter two numbers:\"\nParse Pull a b\nSAY \"You enter \" a \" and \" b \".\"\nSAY a \" + \" b \" = \" a+b\nSAY a \" - \" b \" = \" a-b\nSAY a \" * \" b \" = \" a*b\nSAY a \" / \" b \" = \" a/b\nSAY a \" divided by \" b \" is \" a%b \" with a remainder of \" a//b',1,1,1,'Y'),('REXX','ST000','这里显示返回结果...',1,1,2,'Y'),('REXX','ST025','123',1,1,1,'Y'),('REXX','ST025','这里显示返回结果...',1,1,2,'Y'),('REXX','ST025','123',1,2,1,'Y'),('REXX','ST025','这里显示返回结果...',1,2,2,'Y'),('REXX','ST025','SAY 2',1,3,1,'Y'),('REXX','ST025','123',1,5,1,'Y'),('REXX','ST025','a',1,6,1,'Y'),('SMS','IBMUSER','1',6,1,1,'Y'),('SMS','IBMUSER','2',6,1,2,'Y'),('SMS','IBMUSER','3',6,1,3,'Y'),('SMS','ST006','123',6,1,1,'Y'),('SMS','ST007','DDDD',1,3,1,'N'),('SMS','ST007','99999',2,2,1,'N'),('SMS','ST007','777',3,2,1,'N'),('SMS','ST007','444',3,2,2,'N'),('SMS','ST007','是',6,1,1,'N'),('SMS','ST007','1',6,1,2,'N'),('SMS','ST007','catlog',6,1,3,'N'),('SMS','ST007','sdfdsf',6,4,1,'N'),('SMS','ST007','fdsfsd',6,4,2,'N'),('SMS','ST007','fdsf',6,4,3,'N'),('SMS','ST007','fdsf',6,4,4,'N'),('SMS','ST007','有作用就行',6,5,1,'N'),('SMS','ST007','好',13,3,1,'N'),('SMS','ST007','好',13,3,2,'N'),('SMS','ST007','好',13,3,3,'N'),('SMS','ST007','d\'d\'d\'d',17,3,1,'N'),('SMS','ST021','dsafdf12312312313',2,2,1,'Y'),('SMS','ST021','sdfdf',3,2,1,'Y'),('SMS','ST021','fasdfadsfa',3,2,2,'Y'),('SMS','ST021','dsf',6,1,1,'Y'),('SMS','ST021','sfs',6,1,2,'Y'),('SMS','ST021','sfds',6,1,3,'Y'),('SMS','ST021','是不是',6,4,1,'Y'),('SMS','ST021','有点东西',6,4,2,'Y'),('SMS','ST021','',6,4,3,'Y'),('SMS','ST021','',6,4,4,'Y'),('SMS','ST021','233',7,1,1,'Y'),('SMS','ST021','233',7,1,2,'Y');
+INSERT INTO `report` VALUES ('Catalog','ST000','还挺',2,1,1,'Y'),('Catalog','ST000','没看到诶\n',2,2,1,'Y'),('Catalog','ST000','不会啊',5,4,1,'Y'),('CATALOG','ST006','再次测试保存草稿',2,1,1,'Y'),('CATALOG','ST007','sdfdsf',2,1,1,'Y'),('CATALOG','ST007','dsfdsfsfdsfdsf',2,2,1,'Y'),('CATALOG','ST019','dwa',1,3,1,'Y'),('CATALOG','ST019','徐',2,1,1,'Y'),('CATALOG','ST019','ADW',2,2,1,'Y'),('CATALOG','ST019','是按时',2,4,1,'Y'),('CATALOG','ST019','asd',2,4,2,'Y'),('CATALOG','ST019','都是',4,4,1,'Y'),('CATALOG','ST019','是',4,4,2,'Y'),('CATALOG','ST021','adfdsfafd',1,3,1,'Y'),('CATALOG','ST021','safdfa',1,8,1,'Y'),('RACF','HHH','我是一个神秘的账号',1,1,1,'Y'),('RACF','HHH','',1,1,2,'Y'),('RACF','HHH','',1,1,3,'Y'),('RACF','HHH','',1,1,4,'Y'),('RACF','HHH','试一试',3,1,1,'Y'),('RACF','HHH','',3,1,2,'Y'),('RACF','IBMUSER','1',1,1,1,'Y'),('RACF','IBMUSER','2',1,1,2,'Y'),('RACF','ST000','',1,1,1,'Y'),('RACF','ST000','实验1的步骤1的2',1,1,2,'Y'),('RACF','ST000','牛逼35\n真的',1,1,3,'Y'),('RACF','ST000','',1,1,4,'Y'),('RACF','ST000','非常好的实验7',2,7,2,'Y'),('RACF','ST006','STGRP',1,1,1,'N'),('RACF','ST006','SPECIAL',1,1,2,'N'),('RACF','ST006','SPECIAL',1,1,3,'N'),('RACF','ST006','USER',1,1,4,'N'),('RACF','ST006','实验二的答案',1,2,1,'N'),('RACF','ST006','实验二的答案',1,2,2,'N'),('RACF','ST006','实验二的答案',1,2,3,'N'),('RACF','ST006','实验二的答案',1,2,4,'N'),('RACF','ST006','实验二的答案',1,2,5,'N'),('RACF','ST006','试试',1,3,1,'N'),('RACF','ST006','test',1,3,2,'N'),('RACF','ST006','不会',1,6,1,'N'),('RACF','ST006','不会',1,6,2,'N'),('RACF','ST006','HHHH',2,1,1,'N'),('RACF','ST006','222',2,4,1,'N'),('RACF','ST006','改天回答',3,4,1,'N'),('RACF','ST006','改天回答',4,4,1,'N'),('RACF','ST007','233',1,1,1,'N'),('RACF','ST007','2324234232',1,1,2,'N'),('RACF','ST007','4342423',1,1,3,'N'),('RACF','ST007','2342423423',1,1,4,'N'),('RACF','ST007','sf',2,1,1,'N'),('RACF','ST007','sdfsd',2,1,2,'N'),('RACF','ST007','fsdfsdf',2,1,3,'N'),('RACF','ST007','8888',2,2,1,'N'),('RACF','ST012','改天回答',1,1,1,'Y'),('RACF','ST012','改天回答',1,1,2,'Y'),('RACF','ST017','123',1,1,1,'Y'),('RACF','ST017','23',1,1,2,'Y'),('RACF','ST017','34',1,1,3,'Y'),('RACF','ST017','45',1,1,4,'Y'),('RACF','ST017','test1',2,1,1,'Y'),('RACF','ST017','test2',2,1,2,'Y'),('RACF','ST017','test3',2,1,3,'Y'),('RACF','ST017','AG',3,1,1,'Y'),('RACF','ST017','1212',3,1,2,'Y'),('RACF','ST019','改天回答',1,1,1,'Y'),('RACF','ST019','改天回答',1,1,2,'Y'),('RACF','ST021','改天回答',1,1,1,'Y'),('RACF','ST021','改天回答',1,1,2,'Y'),('RACF','ST021','改天回答',1,1,3,'Y'),('RACF','ST021','改天回答',1,1,4,'Y'),('RACF','ST021','dfsf',1,4,1,'Y'),('RACF','ST021','改天回答',2,1,1,'Y'),('RACF','ST021','改天回答',2,1,2,'Y'),('RACF','ST021','改天回答',2,1,3,'Y'),('RACF','ST021','dfsd',2,4,1,'Y'),('RACF','ST021','改天回答',3,1,1,'Y'),('RACF','ST021','改天回答',3,1,2,'Y'),('RACF','ST021','改天回答',3,4,1,'Y'),('RACF','ST021','改天回答',4,1,1,'Y'),('RACF','ST021','改天回答',4,1,2,'Y'),('RACF','ST021','改天回答',5,1,1,'Y'),('RACF','ST021','改天回答',6,1,1,'Y'),('REXX','ST000','jjjjjj\nkkk\nk\nk\nk\nk',1,2,1,'Y'),('REXX','ST000','jjjjjj',1,2,2,'Y'),('REXX','ST000','好的\n挺好',1,3,1,'Y'),('REXX','ST000','',1,3,2,'Y'),('REXX','ST025','123',1,1,1,'Y'),('REXX','ST025','这里显示返回结果...',1,1,2,'Y'),('REXX','ST025','123',1,2,1,'Y'),('REXX','ST025','这里显示返回结果...',1,2,2,'Y'),('REXX','ST025','SAY 2',1,3,1,'Y'),('REXX','ST025','123',1,5,1,'Y'),('REXX','ST025','a',1,6,1,'Y'),('SMS','IBMUSER','1',6,1,1,'Y'),('SMS','IBMUSER','2',6,1,2,'Y'),('SMS','IBMUSER','3',6,1,3,'Y'),('SMS','ST000','',3,2,1,'Y'),('SMS','ST000','',3,2,2,'Y'),('SMS','ST000','好哒',6,1,1,'Y'),('SMS','ST000','',6,1,2,'Y'),('SMS','ST000','',6,1,3,'Y'),('SMS','ST000','步骤13？？',13,3,1,'Y'),('SMS','ST000','',13,3,2,'Y'),('SMS','ST000','',13,3,3,'Y'),('SMS','ST000','好的',14,2,1,'Y'),('SMS','ST006','123',6,1,1,'Y'),('SMS','ST007','DDDD',1,3,1,'N'),('SMS','ST007','99999',2,2,1,'N'),('SMS','ST007','777',3,2,1,'N'),('SMS','ST007','444',3,2,2,'N'),('SMS','ST007','是',6,1,1,'N'),('SMS','ST007','1',6,1,2,'N'),('SMS','ST007','catlog',6,1,3,'N'),('SMS','ST007','sdfdsf',6,4,1,'N'),('SMS','ST007','fdsfsd',6,4,2,'N'),('SMS','ST007','fdsf',6,4,3,'N'),('SMS','ST007','fdsf',6,4,4,'N'),('SMS','ST007','有作用就行',6,5,1,'N'),('SMS','ST007','好',13,3,1,'N'),('SMS','ST007','好',13,3,2,'N'),('SMS','ST007','好',13,3,3,'N'),('SMS','ST007','d\'d\'d\'d',17,3,1,'N'),('SMS','ST021','dsafdf12312312313',2,2,1,'Y'),('SMS','ST021','sdfdf',3,2,1,'Y'),('SMS','ST021','fasdfadsfa',3,2,2,'Y'),('SMS','ST021','dsf',6,1,1,'Y'),('SMS','ST021','sfs',6,1,2,'Y'),('SMS','ST021','sfds',6,1,3,'Y'),('SMS','ST021','是不是',6,4,1,'Y'),('SMS','ST021','有点东西',6,4,2,'Y'),('SMS','ST021','',6,4,3,'Y'),('SMS','ST021','',6,4,4,'Y'),('SMS','ST021','233',7,1,1,'Y'),('SMS','ST021','233',7,1,2,'Y');
 /*!40000 ALTER TABLE `report` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,7 +90,7 @@ CREATE TABLE `result` (
   KEY `for_question_idx` (`lab`),
   CONSTRAINT `for_question` FOREIGN KEY (`lab`) REFERENCES `question` (`lab`),
   CONSTRAINT `for_student` FOREIGN KEY (`uid`) REFERENCES `student` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +99,7 @@ CREATE TABLE `result` (
 
 LOCK TABLES `result` WRITE;
 /*!40000 ALTER TABLE `result` DISABLE KEYS */;
-INSERT INTO `result` VALUES ('ST006',60,'bad bad','racf',1),('ST007',10,'bad','racf',1);
+INSERT INTO `result` VALUES ('ST000',66,'太棒了还不错的哦，我就是要给你一个非常长的评论','racf',1),('ST000',50,'不行','REXX',1),('ST000',100,'很棒哦','SMS',1),('ST006',60,'bad bad','racf',1),('ST007',10,'bad','racf',1);
 /*!40000 ALTER TABLE `result` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,7 +117,7 @@ CREATE TABLE `student` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY `uid_UNIQUE` (`uid`),
   UNIQUE KEY `sid_UNIQUE` (`sid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,7 +140,7 @@ DROP TABLE IF EXISTS `teacher`;
 CREATE TABLE `teacher` (
   `id` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='A table that store teachers of the class.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='A table that store teachers of the class.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -164,4 +162,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-11 12:46:16
+-- Dump completed on 2020-04-12 17:00:26
