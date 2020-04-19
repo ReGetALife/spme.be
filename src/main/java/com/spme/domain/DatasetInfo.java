@@ -7,13 +7,16 @@ public class DatasetInfo {
     private String unit;
     private String dsorg;
     private String alcunit;
-    private int primary;
-    private int secondary;
-    private int dirblk;
-    private int avgblk;
+    private Integer primary;
+    private Integer secondary;
+    private Integer dirblk;
+    private Integer avgblk;
     private String recfm;
-    private int blksize;
-    private int lrecl;
+    private Integer blksize;
+    private Integer lrecl;
+    private String storeclass;
+    private String mgntclass;
+    private String dataclass;
 
     public String getDsname() {
         return dsname;
@@ -55,35 +58,35 @@ public class DatasetInfo {
         this.alcunit = alcunit;
     }
 
-    public int getPrimary() {
+    public Integer getPrimary() {
         return primary;
     }
 
-    public void setPrimary(int primary) {
+    public void setPrimary(Integer primary) {
         this.primary = primary;
     }
 
-    public int getSecondary() {
+    public Integer getSecondary() {
         return secondary;
     }
 
-    public void setSecondary(int secondary) {
+    public void setSecondary(Integer secondary) {
         this.secondary = secondary;
     }
 
-    public int getDirblk() {
+    public Integer getDirblk() {
         return dirblk;
     }
 
-    public void setDirblk(int dirblk) {
+    public void setDirblk(Integer dirblk) {
         this.dirblk = dirblk;
     }
 
-    public int getAvgblk() {
+    public Integer getAvgblk() {
         return avgblk;
     }
 
-    public void setAvgblk(int avgblk) {
+    public void setAvgblk(Integer avgblk) {
         this.avgblk = avgblk;
     }
 
@@ -95,19 +98,43 @@ public class DatasetInfo {
         this.recfm = recfm;
     }
 
-    public int getBlksize() {
+    public Integer getBlksize() {
         return blksize;
     }
 
-    public void setBlksize(int blksize) {
+    public void setBlksize(Integer blksize) {
         this.blksize = blksize;
     }
 
-    public int getLrecl() {
+    public Integer getLrecl() {
         return lrecl;
     }
 
-    public void setLrecl(int lrecl) {
+    public void setLrecl(Integer lrecl) {
         this.lrecl = lrecl;
+    }
+
+    public String getStoreclass() {
+        return storeclass;
+    }
+
+    public void setStoreclass(String storeclass) {
+        this.storeclass = storeclass;
+    }
+
+    public String getMgntclass() {
+        return mgntclass;
+    }
+
+    public void setMgntclass(String mgntclass) {
+        this.mgntclass = mgntclass;
+    }
+
+    public String getDataclass() {
+        return dataclass;
+    }
+
+    public void setDataclass(String dataclass) {
+        this.dataclass = dataclass;
     }
 }
