@@ -35,7 +35,7 @@ public class ZosmfUtil {
      * @param body         body of request. it can be null
      * @return response entity of class type T
      */
-    public static <T> T go(HttpSession session, String path, HttpMethod method, Object body, Class<T> responseType) {
+    public static <T> T go(HttpSession session, String path, HttpMethod method, Object body, HttpHeaders headers, Class<T> responseType) {
         Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
         Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
         Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
@@ -43,8 +43,11 @@ public class ZosmfUtil {
         String urlOverHttps = "https://" + ZOSMF_Address.toString() + path;
 
         // set header with jsessionid and token
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
+        if (headers == null) {
+            // headers fallback
+            headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+        }
         headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
         HttpEntity<?> request = new HttpEntity<>(body, headers);
 

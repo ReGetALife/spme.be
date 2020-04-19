@@ -22,12 +22,12 @@ public class JclService {
      */
     public List<JobOutputListItem> submitJCL(HttpSession session, String jcl) {
         // submit job
-        JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, JobInfo.class);
+        JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, null, JobInfo.class);
         if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)) {
             // get output list
             String outputListPath = "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId() + "/files";
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> jobOutput = ZosmfUtil.go(session, outputListPath, HttpMethod.GET, null, List.class);
+            List<Map<String, Object>> jobOutput = ZosmfUtil.go(session, outputListPath, HttpMethod.GET, null, null, List.class);
             List<JobOutputListItem> result = new ArrayList<>();
 
             for (Map<String, Object> map : jobOutput) {
@@ -42,7 +42,7 @@ public class JclService {
                 String outputPath = outputListPath + "/" + item.getId() + "/records";
                 // get output of every list item
                 try {
-                    item.setOutput(ZosmfUtil.go(session, outputPath, HttpMethod.GET, null, String.class));
+                    item.setOutput(ZosmfUtil.go(session, outputPath, HttpMethod.GET, null, null, String.class));
                 } catch (Exception e) {
                     item.setOutput("");
                     e.printStackTrace();
@@ -56,14 +56,15 @@ public class JclService {
 
     /**
      * submit a jcl for a specific output item
+     *
      * @param id id of that output
      */
     public String submitJCL(HttpSession session, String jcl, int id) {
-        JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, JobInfo.class);
-        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)){
+        JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, null, JobInfo.class);
+        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)) {
             String outputPath = "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId() + "/files/" + id + "/records";
             try {
-                 return ZosmfUtil.go(session, outputPath, HttpMethod.GET, null, String.class);
+                return ZosmfUtil.go(session, outputPath, HttpMethod.GET, null, null, String.class);
             } catch (Exception e) {
                 e.printStackTrace();
                 return "";
