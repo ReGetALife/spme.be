@@ -59,7 +59,8 @@ public class JclService {
      *
      * @param id id of that output
      */
-    public String submitJCL(HttpSession session, String jcl, int id) {
+    @SuppressWarnings("SameParameterValue")
+    String submitJCL(HttpSession session, String jcl, int id) {
         JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, null, JobInfo.class);
         if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)) {
             String outputPath = "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId() + "/files/" + id + "/records";
