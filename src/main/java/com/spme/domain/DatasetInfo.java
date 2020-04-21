@@ -1,5 +1,6 @@
 package com.spme.domain;
 
+@SuppressWarnings("unused")
 public class DatasetInfo {
 
     private String dsname;

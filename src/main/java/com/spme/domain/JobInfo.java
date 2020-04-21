@@ -2,6 +2,7 @@ package com.spme.domain;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
+@SuppressWarnings("unused")
 public class JobInfo {
 
     private String owner;

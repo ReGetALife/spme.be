@@ -1,5 +1,6 @@
 package com.spme.domain;
 
+@SuppressWarnings("unused")
 public class JobOutputListItem {
     private String jobName;
     private String jobId;
