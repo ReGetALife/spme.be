@@ -70,6 +70,6 @@ public class JclService {
                 return "";
             }
         }
-        return "";
+        return null;
     }
 }
