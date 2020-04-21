@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 
 /**
@@ -19,10 +18,9 @@ public class CmdService {
     /**
      * run tso commands and get response output
      */
-    public String runCMD(Map<String, String> commBody, HttpSession session) {
-        String command = "";
-        if (commBody.get("cmd") != null && !commBody.get("cmd").equals("")) {
-            command = commBody.get("cmd");
+    public String runCMD(String command, HttpSession session) {
+        if (command == null) {
+            return "";
         }
         // split command
         String[] cmds = command.split(";");
