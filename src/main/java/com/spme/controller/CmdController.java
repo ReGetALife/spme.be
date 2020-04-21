@@ -29,7 +29,7 @@ public class CmdController {
             return ResponseEntity.status(401).body(null);
         }
         String res;
-        if ((res = cs.runCMD(body.get("cmd"), session)) != null) {
+        if ((res = cs.runCMD(session, body.get("cmd"))) != null) {
             return ResponseEntity.ok(res);
         }
         // time out

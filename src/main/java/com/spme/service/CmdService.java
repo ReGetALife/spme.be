@@ -13,12 +13,12 @@ import javax.servlet.http.HttpSession;
 public class CmdService {
 
     @Resource
-    JclService js;
+    private JclService js;
 
     /**
      * run tso commands and get response output
      */
-    public String runCMD(String command, HttpSession session) {
+    public String runCMD(HttpSession session, String command) {
         if (command == null) {
             return "";
         }
