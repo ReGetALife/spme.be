@@ -131,7 +131,7 @@ public class DatasetService {
     public boolean writeDataset(HttpSession session, String name, String content) {
         try {
             ZosmfUtil.go(session, datasetApiPath + "/" + name,
-                    HttpMethod.GET,
+                    HttpMethod.PUT,
                     content,
                     null,
                     null);
