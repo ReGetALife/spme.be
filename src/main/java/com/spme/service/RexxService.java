@@ -57,8 +57,6 @@ public class RexxService {
         // delete the dataset, ignore whether succeeded
         ds.deleteDataset(session, datasetName);
 
-        System.out.println(datasetName);
-
         // res can be null
         return res;
     }
