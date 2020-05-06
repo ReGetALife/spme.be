@@ -15,12 +15,13 @@ import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**
- * @author 冯濛
+ * @author Qingguo Li
  */
 @Controller
 public class SmsController {
 
     //ISMF - 4.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/4/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob41(@RequestBody Map<String, String> map, HttpSession session) {
@@ -129,6 +130,7 @@ public class SmsController {
     }
 
     //ISMF - 5.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/5/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob51(@RequestBody Map<String, String> map, HttpSession session) {
@@ -211,6 +213,7 @@ public class SmsController {
     }
 
     //ISMF -5.2
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/5/2", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob52(@RequestBody Map<String, String> map, HttpSession session) {
@@ -293,6 +296,7 @@ public class SmsController {
 
 
     //ISMF -5.3
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/5/3", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob53(@RequestBody Map<String, String> map, HttpSession session) {
@@ -375,6 +379,7 @@ public class SmsController {
 
 
     //ismf -6.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/6/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob61(@RequestBody Map<String, String> map, HttpSession session) {
@@ -457,6 +462,7 @@ public class SmsController {
     }
 
     //ISMF -7.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/7/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob71(@RequestBody Map<String, String> map, HttpSession session) {
@@ -540,6 +546,7 @@ public class SmsController {
     }
 
     //ismf -8.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/8/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob81(@RequestBody Map<String, String> map, HttpSession session) {
@@ -626,6 +633,7 @@ public class SmsController {
 
 
     //ISMF 11.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/11/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob111(@RequestBody Map<String, String> map, HttpSession session) {
@@ -714,6 +722,7 @@ public class SmsController {
     }
 
     //ISMF 11.2
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/11/2", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob112(@RequestBody Map<String, String> map, HttpSession session) {
@@ -802,6 +811,7 @@ public class SmsController {
     }
 
     //ISMF 11.3
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/11/3", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob113(@RequestBody Map<String, String> map, HttpSession session) {
@@ -890,6 +900,7 @@ public class SmsController {
 
 
     //ISMF 11.4
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/11/4", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob114(@RequestBody Map<String, String> map, HttpSession session) {
@@ -976,6 +987,7 @@ public class SmsController {
     }
 
     //ISMF 12.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/12/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob121(@RequestBody Map<String, String> map, HttpSession session) {
@@ -1057,6 +1069,7 @@ public class SmsController {
     }
 
     //ismf 13.1
+    @Deprecated
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/ismf/13/1", method = RequestMethod.POST)
     public ResponseEntity<JCLInfo> subJob131(@RequestBody Map<String, String> map, HttpSession session) {
