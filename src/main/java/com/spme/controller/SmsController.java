@@ -1,8 +1,11 @@
 package com.spme.controller;
 
 
+import com.spme.domain.CdsBaseConfig;
 import com.spme.domain.JCLInfo;
 import com.spme.domain.JobInfo;
+import com.spme.service.SmsService;
+import com.spme.utils.AuthUtil;
 import com.spme.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.*;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
@@ -19,6 +23,9 @@ import java.util.Map;
  */
 @Controller
 public class SmsController {
+
+    @Resource
+    private SmsService ss;
 
     //ISMF - 4.1
     @Deprecated
@@ -1155,6 +1162,57 @@ public class SmsController {
             //超时
             return new ResponseEntity("time out", HttpStatus.valueOf(202));
         }
+    }
+
+    /**
+     * Display base configuration of a SCDS
+     */
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/sms/base-configuration/{scds}", method = RequestMethod.GET)
+    public ResponseEntity<String> getBaseConfig(@PathVariable String scds, HttpSession session) {
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String res = ss.getBaseConfig(session, scds);
+        if (res == null || res.equals("")) {
+            res = "Can not get base configuration of " + scds +
+                    ".\n Or time out.";
+        }
+        return ResponseEntity.ok(res);
+    }
+
+    /**
+     * Create base configuration of a SCDS
+     */
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/sms/base-configuration", method = RequestMethod.POST)
+    public ResponseEntity<String> createBaseConfig(@RequestBody CdsBaseConfig config, HttpSession session) {
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String res = ss.createBaseConfig(session, config);
+        if (res == null || res.equals("")) {
+            res = "Can not create base configuration of " + config.getScds() +
+                    ".\n Or time out.";
+        }
+        return ResponseEntity.ok(res);
+    }
+
+    /**
+     * Alter base configuration of a SCDS
+     */
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/sms/base-configuration", method = RequestMethod.PUT)
+    public ResponseEntity<String> alterBaseConfig(@RequestBody CdsBaseConfig config, HttpSession session) {
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String res = ss.alterBaseConfig(session, config);
+        if (res == null || res.equals("")) {
+            res = "Can not alter base configuration of " + config.getScds() +
+                    ".\n Or time out.";
+        }
+        return ResponseEntity.ok(res);
     }
 }
 
