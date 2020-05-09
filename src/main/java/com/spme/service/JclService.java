@@ -23,7 +23,7 @@ public class JclService {
     public List<JobOutputListItem> submitJCL(HttpSession session, String jcl) {
         // submit job
         JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, null, JobInfo.class);
-        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)) {
+        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 20)) {
             // get output list
             String outputListPath = "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId() + "/files";
             @SuppressWarnings("unchecked")
@@ -62,7 +62,7 @@ public class JclService {
     @SuppressWarnings("SameParameterValue")
     String submitJCL(HttpSession session, String jcl, int id) {
         JobInfo jobInfo = ZosmfUtil.go(session, "/zosmf/restjobs/jobs", HttpMethod.PUT, jcl, null, JobInfo.class);
-        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 10)) {
+        if (jobInfo != null && ZosmfUtil.isReady(session, "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId(), 20)) {
             String outputPath = "/zosmf/restjobs/jobs/" + jobInfo.getJobName() + "/" + jobInfo.getJobId() + "/files/" + id + "/records";
             try {
                 return ZosmfUtil.go(session, outputPath, HttpMethod.GET, null, null, String.class);
