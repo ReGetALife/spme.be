@@ -1,0 +1,307 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAS1) COMP(DF123): BATCH - SC DEFINE/ALTER/DISPLAY   @A1C*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5694-A01                                                     @W1C*/
+//* COPYRIGHT 1998,2011  IBM CORP.                               @D1C*/
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//*  CHANGE ACTIVITY:                                                */
+//* $T1=NQ5,HDZ11E0,061997,SNJTCS:   NaviQuest Batch Support     @T1A*/
+//* $T2=K151321,HDZ11E0,091998,SNJTCS: Possible values          2@T2A*/
+//*                                    documentation                 */
+//* $U1=NaviQuest,HDZ11F0,99/08/04,SNJTCS: NQ Enhancements for  2@U1A*/
+//*     DFSMS/MVS ISMF V2R10, Backup and Versioning fields added     */
+//* 10/18/99 TCS - HDZ11E0: Support for Uplevel SCDS update  @WA41441*/
+//* 05/23/01 TCS - HDZ11F0: Prolog Updation                  @WA49380*/
+//* $W1=K1H0049,HDZ11H0,01/10/04,SNJTCS: Multi Tier SGs          @W1A*/
+//* $X1=SMSPAV ,HDZ11J0,03/04/15,SNJTCS: Support for SMSPAV      @X1A*/
+//* $92=OAMSLVL,HDZ1190,06/06/20,IBSTGS: Support of OAM Sublevel @92A*/
+//* $A1=MULTLCK,HDZ1A10,07/04/27,IBSAS: Support of MULTILOCK     @A1A*/
+//* $D1=BMF    ,HDZ1D10,10/01/29,IBSTG: BMF Disconnect Sphere at @D1A*/
+//*                                     CLOSE                    @D1A*/
+//* $D2=OAMGROW,HDZ1D10,10/04/19,SVLCY: zGrowth support, OAMsubl @D2A*/
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO DEFINE/ALTER/DISPLAY STORAGE CLASSES IN BATCH      *
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*     CHANGE JOBCARD                                               *
+//*     CHANGE PREFIX                                                *
+//*     CHANGE PARAMETERS                                            *
+//*                                                                  *
+//*   PARAMETER FOLLOWING ACBQBAS1 - DEFINE OR ALTER OR DISPLAY      *
+//*********************** ADD  BEG  **********************************
+//*                                                                  *
+//* Required Fields:                                       2@WA49380 *
+//*                                                                  *
+//*   SCDS     : Name of the SCDS, 1-44 characters.                  *
+//*                                                                  *
+//*   STCNAME  : Storage class being defined/altered.                *
+//*                                                                  *
+//*              1-8  alphanumeric  characters , begining with       *
+//*              alphabet.                                           *
+//*                                                                  *
+//* Optional Fields:                                       2@WA49380 *
+//*                                                                  *
+//*   DESCR    : Remarks about the SC being created. 1-120           *
+//*              alphanumeric characters.                            *
+//*                                                                  *
+//*   DMSRESP  : Use DIRECT MILLISECOND RESPONSE field to  specify   *
+//*              how quickly the system will read or write data in   *
+//*              4K  blocks  on  direct access devices. Enter  the   *
+//*              response time in milliseconds. All input and output *
+//*              requests are processed  in single 4k bytes.         *
+//*                                                                  *
+//*              Possible Values : 1 - 999, BLANK                    *
+//*                                                                  *
+//*   DRTBIAS  : Specify  this  field ( DIRECT BIAS)  to  indicate   *
+//*              whether the majority of the I/O scheduled for DSs   *
+//*              in this SC will be READ,WRITE or UNKNOWN.           *
+//*                                                                  *
+//*              Possible Values : R, W, BLANK                       *
+//*                                                                  *
+//*   SEQMSRES : Use  SEQUENTIAL  MILLISECOND  RESPONSE  field   to  *
+//*              specify  how  quickly  the  system  will  read  or  *
+//*              write data in  4K  blocks on sequentially accessed  *
+//*              devices. Enter  the response time in milliseconds.  *
+//*              All I/O requests are processed in single 4K blocks. *
+//*                                                                  *
+//*              Possible Values : 1 - 999, BLANK                    *
+//*                                                                  *
+//*   SEQBIAS  : Specify   this   field ( SEQ BIAS)  to   indicate   *
+//*              whether the majority of the I/O scheduled for DSs   *
+//*              in this SC will be READ,WRITE or UNKNOWN.           *
+//*                                                                  *
+//*              Possible Values : R, W, BLANK                       *
+//*                                                                  *
+//*   INIARESS : Use this field (INITIAL ACCESS RESPONSE SECONDS)    *
+//*              to  specify the  desired  response time in SECs     *
+//*              to  locate,  mount, and prepare  media for          *
+//*              data transfer.                                      *
+//*                                                                  *
+//*              Possible Values : 0 - 9999, BLANK                   *
+//*                                                                  *
+//*   SUSDTRT  : Use this field (SUSTAINED  DATA RATE (MB/SEC)) to   *
+//*              specify the sequential  data  transfer  rate  you   *
+//*              want for striped  datasets in this SC. The system   *
+//*              uses this value to determine the no.of stripes it   *
+//*              will attempt to allocate for the datasets. If you   *
+//*              enter ZERO or BLANK  the system  will  attempt to   *
+//*              allocate  them  with  one stripe.  Only  extended   *
+//*              sequential datasets can be striped.                 *
+//*                                                                  *
+//*              Possible Values : 0 - 999, BLANK                    *
+//*                                                                  *
+//*   OAMLVL   : Use the OAM SUBLEVEL field to specify the desired   *
+//*              sublevel of an OAM disk or tape hierarchy level to  *
+//*              use for object storage.  The OAM SUBLEVEL is only   *
+//*              applicable when the INITIAL ACCESS RESPONSE SECONDS *
+//*              value is equal to 0, or when the INITIAL ACCESS @D2C*
+//*              RESPONSE SECONDS value is greater than 0 and the    *
+//*              SUSTAINED DATA RATE value is greater than or equal  *
+//*              to 3.                                           @D2C*
+//*                                                                  *
+//*              Possible values:                                    *
+//*                For disk, when IARS = 0 then OSL value of    4@D2A*
+//*                  - 1 equates to OAM Disk Sublevel 1,             *
+//*                  - 2 equates to OAM Disk Sublevel 2,             *
+//*                  - blank defaults to OAM Disk Sublevel 1.        *
+//*                                                                  *
+//*                For tape, when IARS >= 1 and SDR >= 3 then        *
+//*                OSL value of                                  @D2C*
+//*                  - 1 equates to OAM Tape Sublevel 1,             *
+//*                  - 2 equates to OAM Tape Sublevel 2,             *
+//*                  - blank defaults to OAM Tape Sublevel 1.        *
+//*                                                                  *
+//*                When IARS < 1 or when IARS > 0 and SDR < 3   2@D2C*
+//*                then OSL must be blank.                           *
+//*                                                                  *
+//*   AVALBTY  : Specify whether dataset processing should continue  *
+//*              after device failures.                              *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              C  -> Continue to process a DS if a device failure  *
+//*                    severs communications with the  volumes that  *
+//*                    contains the dataset.                         *
+//*              S  -> Continuous processing  is  unavailable after  *
+//*                    device failures.                              *
+//*              P  -> Data  may  be placed on devices that support  *
+//*                    continuous processing.                        *
+//*              N  -> Data  is  placed  on any volume. There is no  *
+//*                    preference among volumes.                     *
+//*                                                                  *
+//*   ACCSBTY  : ACCESSIBILITY field specifies whether the datasets  *
+//*              in  this  SC be  allocated to volumes supported by  *
+//*              concurrent  copy. When  used   with  the   MGMTCLS  *
+//*              ABACKUP/BACKUP  COPY  TECHNIQUE  attributes,  this  *
+//*              field determines if DS should retain  write access  *
+//*              during backup.                                      *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              C  -> Datasets  must  be allocated  to the volumes  *
+//*                    supported by concurrent copy.                 *
+//*              S  -> Datasets  should be allocated to the volumes  *
+//*                    supported by concurrent copy.                 *
+//*              P  -> Datasets should be  allocated to the volumes  *
+//*                    not supported by concurrent copy.             *
+//*              N  -> Datasets should be  allocated to the volumes  *
+//*                    whether  the volumes support concurrent copy  *
+//*                    or not.                                       *
+//*                                                            25@U1A*
+//*   BACKUP   : Use  the  BACKUP  option  under ACCESSIBILITY  to   *
+//*              specify  that  the datasets  in  this storage class *
+//*              when being backed up are unavailable to application *
+//*              programs for a minimal period.                      *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              Y      -> Dataset is available for backup.          *
+//*              N      -> Dataset is not available for backup.      *
+//*              Blank  -> Defaults to N.                            *
+//*                                                                  *
+//*   VRSNING  : Use the VERSIONING option  under ACCESSIBILITY  to  *
+//*              specify  that  the datasets  in  this storage class *
+//*              can  have  a  point-in-time  version  available for *
+//*              application  testing,  reporting,  or  backup while *
+//*              applications  continue  to  access  and  update the *
+//*              source dataset.                                     *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              Y      -> Dataset is available for Versioning.      *
+//*              N      -> Dataset is not available for Versioning.  *
+//*              Blank  -> Defaults to N.                            *
+//*                                                                  *
+//*   GURNTSPC : GUARANTEED  SPACE  field  specifies whether to use  *
+//*              the JCL VOL=SER=  parameter  to  reserve  space on  *
+//*              specific volumes for datasets in this SC.           *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              Y  -> Reserve  space  for datasets on the  volumes  *
+//*                    specified in the JCL VOL=SER= parameter.      *
+//*              N  -> Don't  use  volumes  requested  in  the  JCL  *
+//*                     VOL=SER= parameter.                          *
+//*                                                                  *
+//*   GUASYNWR : GUARANTEED  SYNCHRONOUS  WRITE   field   indicates  *
+//*              whether  the  system  should  return  from  a BSAM  *
+//*              CHECK  (or WAIT)  issued  for  a  WRITE  against a  *
+//*              partitioned  dataset  extended (PDSE)  member or a  *
+//*              compressed format data set before (unsynchronized)  *
+//*              or after (synchronized) the data has been written   *
+//*              to a storage device.                                *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              Y  -> Indicates synchronized write.                 *
+//*              N  -> Indicates no synchronization.                 *
+//*                                                                  *
+//*                                                             7@W1A*
+//*   MULTITSG : MULTI TIER SGs field indicates whether or not SMS   *
+//*              attempt to allocate using a volume in the first     *
+//*              listed storage group prior to allocating against    *
+//*              subsequent storage groups.                          *
+//*                                                                  *
+//*              Possible Values : Y/N/BLANK                         *
+//*                                                                  *
+//*                                                             5@X1A*
+//*   PAVCAP   : Use the PARALLEL ACCESS VOLUME CAPABILITY field     *
+//*              to modify the volume preferencing.                  *
+//*                                                                  *
+//*              Possible Values : R/P/S/N                           *
+//*                                                                  *
+//*   CFCACSTN : Coupling Facility Cache set name.                   *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              1-8 alphanumeric characters with beginning char     *
+//*                                                                  *
+//*   CFDTWGHT : Specifies relative importance of  data in a SC      *
+//*              when it is accessed directly.                       *
+//*                                                                  *
+//*              Possible Values : 1 - 11, BLANK                     *
+//*                                                                  *
+//*   CFSEQWHT : Specifies relative importance of  data in a SC      *
+//*              when it is accessed sequentially.                   *
+//*                                                                  *
+//*              Possible Values : 1 - 11, BLANK                     *
+//*                                                                  *
+//*   CFLOCSTN : Coupling Facility Lock set name.               6@A1A*
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                                                                  *
+//*              1-8 alphanumeric characters with beginning char     *
+//*                                                                  *
+//*   DISCSPHERE: Disconnect Sphere at CLOSE field indicates   13@D1A*
+//*               whether the sphere should be disconnected          *
+//*               immediately upon closing the data set or stay      *
+//*               connected for a period of time.                    *
+//*                                                                  *
+//*               Possible Values :                                  *
+//*                                                                  *
+//*               Y      -> Yes, the sphere will be immediately      *
+//*                         disconnected as soon as the data set is  *
+//*                         closed.                                  *
+//*               N      -> No, sphere stays connected for a period  *
+//*                         of time following the "CLOSE".           *
+//*                                                                  *
+//*   UPDHLVLSCDS: When modifying an SCDS, that was formatted with   *
+//*                a higher level of SMS, using a lower level of     *
+//*                SMS will make this application fail unless you    *
+//*                specify the UPDHLVLSCDS parameter as 'Y'.         *
+//*                Default is 'N'.                           @WA41441*
+//*                                                                  *
+//*                Possible values : Y/N/BLANK               @WA41441*
+//*********************** ADD  END  **********************************
+//********************************************************************
+//STEP1   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAS1 DEFINE/ALTER +
+SCDS(TEMP.SCDS) +
+STCNAME() +
+DESCR() +
+DMSRESP() +
+DRTBIAS() +
+SEQMSRES() +
+SEQBIAS() +
+INIARESS() +
+SUSDTRT() +
+OAMLVL() +
+AVALBTY() +
+ACCSBTY() +
+BACKUP() +
+VRSNING() +
+GURNTSPC() +
+GUASYNWR() +
+MULTITSG() +
+PAVCAP() +
+CFCACSTN() +
+CFDTWGHT() +
+CFSEQWHT() +
+CFLOCSTN() +
+DISCSPHERE() +
+UPDHLVLSCDS() +
+)
+/*
+//STEP2   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAS1 DISPLAY +
+SCDS(TEMP.SCDS) +
+STCNAME() +
+)
+//

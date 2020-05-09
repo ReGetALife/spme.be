@@ -1,0 +1,163 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAB1) COMP(5695DF123): BATCH - BC DEFINE/ALTER/DISPLAY   */
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5694-A01                                                     @V1C*/
+//* (C) COPYRIGHT 1998,2002  IBM CORP.                               */
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//*  CHANGE ACTIVITY:                                                */
+//* $T1=NQ5,HDZ11E0,061997,SNJTCS:   NaviQuest Batch Support     @T1A*/
+//* $T2=K151321,HDZ11E0,091998,SNJTCS: Possible values          2@T2A*/
+//*                                    documentation                 */
+//* 10/18/99 TCS - HDZ11E0: Support for Uplevel SCDS update  @WA41441*/
+//* $V1=DSSP,HDZ11G0,09/19/00,TCS: DS Separation Profile       2@V1A */
+//*                                     Support                      */
+//* 05/23/01 TCS - HDZ11F0: Prolog Updation                  @WA49380*/
+//*                                                                  */
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO DEFINE/ALTER/DISPLAY BASE CONFIGURATION IN BATCH   *
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*     CHANGE JOBCARD                                               *
+//*     CHANGE PREFIX                                                *
+//*     CHANGE PARAMETERS                                            *
+//*                                                                  *
+//*   PARAMETER FOLLOWING ACBQBAB1 - DEFINE OR ALTER OR DISPLAY      *
+//************************* ADD BEG ******************************** *
+//*                                                        3@WA49380 *
+//* Required Fields:                                                 *
+//*                                                                  *
+//*   SCDS    : Specify the SCDS whose base configuration you want   *
+//*             to define/alter or display.                         *
+//*                                                                  *
+//*   BYTPTRK : Specify BYTES/TRACK                                  *
+//*                                                                  *
+//*             Possible values : 1 - 999999                         *
+//*                                                                  *
+//*   TRKPCYL : Specify TRACKS/CYLENDER                              *
+//*                                                                  *
+//*             Possible values : 1 - 999999                         *
+//*                                                                  *
+//*   ADDSYS  : Name of the system you want to add                   *
+//*                                                                  *
+//*             Possible values : 1-8 Alphanumeric characters        *
+//*                               beginning with alphebetic.         *
+//*                                                                  *
+//*             If more than one system is being added  , systems    *
+//*             will be separated by ','.                            *
+//*                                                                  *
+//*             Ex : ADDSYS(SYS1,SYS2,SYS3)                          *
+//*                                                                  *
+//*   ADDGRP  : Name of the System group that you want to add        *
+//*                                                                  *
+//*             Possible values : 1-8 Alphanumeric characters.       *
+//*                               beginning with aplhabetic.         *
+//*                                                                  *
+//*             If more than one system group is being added, system *
+//*             groups will  be separated by ','.                    *
+//*                                                                  *
+//*             Ex : ADDGRP(SGRP1,SGRP2,SGRP3)                       *
+//*                                                                  *
+//*                                                                  *
+//*   DELSYS  : Name of the system you want to delete                *
+//*                                                                  *
+//*             If more than one system is being deleted, systems    *
+//*             will be separated by ','.                            *
+//*                                                                  *
+//*             Ex : DELSYS(SYS1,SYS2,SYS3)                          *
+//*                                                                  *
+//*   DELGRP  : Name of the System group that you want to delete     *
+//*                                                                  *
+//*             If more than one system group is being deleted,      *
+//*             system groups will  be separated by ','.             *
+//*                                                                  *
+//*             Ex : DELGRP(SGRP1,SGRP2,SGRP3)                       *
+//*                                                                  *
+//*   RENSYS  : Old and new names of the system that is being        *
+//*             renamed, separated by ','.                           *
+//*                                                                  *
+//*             If more than one system is being renamed, systems    *
+//*             will be separated by ','.                            *
+//*                                                                  *
+//*             Ex : RENSYS(oldname1,newname1,oldname2,newname2)     *
+//*                                                                  *
+//*   RENGRP  : Old and new names of the system group  that is being *
+//*             renamed, separated by ','.                           *
+//*                                                                  *
+//*             If more than one system group is being renamed,      *
+//*             system groups ll be separated by ','.                *
+//*                                                                  *
+//*             Ex : RENGRP(oldname1,newname1,oldname2,newname2)     *
+//*                                                                  *
+//* Optional Fields:                                       2@WA49380 *
+//*                                                                  *
+//*   DESCR   : Remarks  about  the  SCDS whose base you want to     *
+//*             define or alter.                                     *
+//*                                                                  *
+//*             Possible values : 1 - 120 characters.                *
+//*                                                                  *
+//*   DEFMC   : Specify this DEFAULT MGMTCLS field to define or      *
+//*             alter the MGMTCLS reserved  for  datasets which      *
+//*             have not yet been assigned a MGMTCLS. Available      *
+//*             only for SMS managed datasets. Controls the BKP,     *
+//*             retention and migration of datasets.                 *
+//*                                                                  *
+//*             Possible values : Valid MGMTCLS name.                *
+//*                                                                  *
+//*   DEFUNIT : Specify this field  to assign the default device     *
+//*             used when non SMS datasets are allocated without     *
+//*             a unit parameter,                                    *
+//*                                                                  *
+//*   DSSEPPL : Specify Partitioned or Sequential dataset name  5@V1A*
+//*             This provides SMS with a list of dataset names.      *
+//*                                                                  *
+//*             Possible values : A valid data set name              *
+//*                                                                  *
+//*   UPDHLVLSCDS: When modifying an SCDS, that was formatted with a *
+//*                higher level of SMS, using a lower level of SMS   *
+//*                will make this application fail unless you        *
+//*                specify the UPDHLVLSCDS parameter as 'Y'.         *
+//*                Default is 'N'.                           @WA41441*
+//*                                                                  *
+//*                Possible values : Y/N/BLANK               @WA41441*
+//************************* ADD END ******************************** *
+//********************************************************************
+//********************************************************************
+//STEP1   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAB1 DEFINE/ALTER +
+SCDS(TEMP.SCDS) +
+DESCR() +
+DEFMC() +
+DEFUNIT() +
+BYTPTRK() +
+TRKPCYL() +
+DSSEPPL() +
+ADDSYS() +
+ADDGRP() +
+UPDHLVLSCDS() +
+) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)
+/*
+/*
+//STEP3   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAB1 DISPLAY +
+SCDS(TEMP.SCDS) +
+) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)
+/*
