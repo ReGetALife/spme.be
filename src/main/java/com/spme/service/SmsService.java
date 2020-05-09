@@ -1,6 +1,7 @@
 package com.spme.service;
 
 import com.spme.domain.BaseConfiguration;
+import com.spme.domain.DataClass;
 import com.spme.domain.DatasetInfo;
 import org.springframework.stereotype.Service;
 
@@ -143,6 +144,29 @@ public class SmsService {
                     "PROFILE NOPREFIX\n" +
                     "ISPSTART CMD(ACBQBAB1 ALTER +\n" +
                     fieldsResolver(config) +
+                    ") +\n" +
+                    "BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)\n" +
+                    "/*\n";
+            return js.submitJCL(session, jcl, 104);
+        }
+        return "";
+    }
+
+    /**
+     * Define data class
+     * Sample JCL: SYS1.SACBCNTL(ACBJBAD1)
+     */
+    public String createDataclass(HttpSession session, DataClass dataClass) {
+        if (prepareTable2(session)) {
+            String uid = session.getAttribute("ZOSMF_Account").toString();
+            String jcl = getHead(uid) +
+                    "//STEP1   EXEC ACBJBAOB,\n" +
+                    "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSUDUMP DD  SYSOUT=*\n" +
+                    "//SYSTSIN  DD *\n" +
+                    "PROFILE NOPREFIX\n" +
+                    "ISPSTART CMD(ACBQBAD1 DEFINE +\n" +
+                    fieldsResolver(dataClass) +
                     ") +\n" +
                     "BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)\n" +
                     "/*\n";

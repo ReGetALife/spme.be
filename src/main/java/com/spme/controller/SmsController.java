@@ -2,6 +2,7 @@ package com.spme.controller;
 
 
 import com.spme.domain.BaseConfiguration;
+import com.spme.domain.DataClass;
 import com.spme.domain.JCLInfo;
 import com.spme.domain.JobInfo;
 import com.spme.service.SmsService;
@@ -26,115 +27,6 @@ public class SmsController {
 
     @Resource
     private SmsService ss;
-
-    //ISMF - 4.1
-    @Deprecated
-    @CrossOrigin(origins = "*", allowCredentials = "true")
-    @RequestMapping(value = "/sms/ismf/4/1", method = RequestMethod.POST)
-    public ResponseEntity<JCLInfo> subJob41(@RequestBody Map<String, String> map, HttpSession session) {
-        Object ZOSMF_JSESSIONID = session.getAttribute("ZOSMF_JSESSIONID");
-        Object ZOSMF_LtpaToken2 = session.getAttribute("ZOSMF_LtpaToken2");
-        Object ZOSMF_Address = session.getAttribute("ZOSMF_Address");
-
-        if (ZOSMF_JSESSIONID == null || ZOSMF_LtpaToken2 == null || ZOSMF_Address == null) {
-            return new ResponseEntity("unauthorized", HttpStatus.valueOf(401));
-        } else {
-            CloseableHttpClient httpClient = SslUtil.SslHttpClientBuild();
-            HttpComponentsClientHttpRequestFactory requestFactory
-                    = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setHttpClient(httpClient);
-            //jcljob提交地址
-            String jclAddress = ZOSMF_Address.toString();
-            String urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.TEXT_PLAIN);
-            headers.add("Cookie", ZOSMF_JSESSIONID.toString() + ";" + ZOSMF_LtpaToken2);
-            //body
-            //获取参数  参数列表
-            //学生账号
-            String id = map.get("id");
-            //SCDS -name
-            String Scds = map.get("scds");
-            //sys -name
-            String SysName = map.get("sys");
-
-            StringBuffer sb = new StringBuffer();
-            sb.append("//ST01041 JOB (ACCT),'ST010',MSGCLASS=H,\n");
-            sb.append("//      NOTIFY=ST010,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)\n");
-            sb.append("//MYLIB JCLLIB ORDER=SYS1.SACBCNTL\n");
-            sb.append("//STEP1   EXEC ACBJBAOB,\n");
-            sb.append("//        TABL2=ST010.TEST.ISPTABL\n");
-            sb.append("//SYSUDUMP DD  SYSOUT=*\n");
-            sb.append("//SYSTSIN  DD *\n");
-            sb.append("PROFILE PREFIX(ST010)\n");
-            sb.append("ISPSTART CMD(ACBQBAB1 DEFINE+\n");
-            sb.append("SCDS(ST010.SMS1.SCDS) +\n");
-            sb.append("DESCR() +\n");
-            sb.append("DEFMC() +\n");
-            sb.append("DEFUNIT() +\n");
-            sb.append("BYTPTRK(56664) +\n");
-            sb.append("TRKPCYL(15) +\n");
-            sb.append("DSSEPPL() +\n");
-            sb.append("ADDSYS(P390) +\n");
-            sb.append("ADDGRP() +\n");
-            sb.append("UPDHLVLSCDS() +\n");
-            sb.append(") +\n");
-            sb.append("BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)\n");
-            sb.append("/*\n");
-            sb.append("/*\n");
-            sb.append("//STEP3   EXEC ACBJBAOB,\n");
-            sb.append("//        TABL2=ST010.TEST.ISPTABL\n");
-            sb.append("//SYSUDUMP DD  SYSOUT=*\n");
-            sb.append("//SYSTSIN  DD *\n");
-            sb.append("PROFILE PREFIX(ST010)\n");
-            sb.append("ISPSTART CMD(ACBQBAB1 DISPLAY +\n");
-            sb.append("SCDS('ST010.SMS1.SCDS') +\n");
-            sb.append(") +\n");
-            sb.append("BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)\n");
-            sb.append("/*");
-
-
-            //提交jcl的request
-            HttpEntity<String> requestSub = new HttpEntity<>(sb.toString(), headers);
-            //响应内容
-            ResponseEntity<JobInfo> responseSub = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.PUT, requestSub, JobInfo.class);
-
-            //query job's status
-            for (int i = 0; i < 10; i++) {
-                try {
-                    Thread.currentThread().sleep(1000);//
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-                //查询执行状态的地址
-                urlOverHttps = "https://" + jclAddress + "/zosmf/restjobs/jobs/" + responseSub.getBody().getJobName() + "/" + responseSub.getBody().getJobId();
-                //查询结果
-                HttpEntity<String> requestQur = new HttpEntity<>(headers);
-                ResponseEntity<JobInfo> responseQur = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET, requestQur, JobInfo.class);
-                //判断作业状态
-                if (responseQur.getBody().getStatus().equals("OUTPUT")) {
-                    //查询执行结果的地址
-                    JCLInfo res_jclinfo = new JCLInfo();
-                    String JESMSGLG_url = urlOverHttps + "/files/2/records";
-                    String JESJCL_url = urlOverHttps + "/files/3/records";
-                    String JESYSMSG_url = urlOverHttps + "/files/4/records";
-                    String SYSPRINT_url = urlOverHttps + "/files/102/records";
-                    ResponseEntity<String> res_JESMSGLG = new RestTemplate(requestFactory).exchange(JESMSGLG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESMSGLG(res_JESMSGLG.getBody());
-                    ResponseEntity<String> res_JESJCL = new RestTemplate(requestFactory).exchange(JESJCL_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESJCL(res_JESJCL.getBody());
-                    ResponseEntity<String> res_JESYSMSG = new RestTemplate(requestFactory).exchange(JESYSMSG_url, HttpMethod.GET, requestQur, String.class);
-                    res_jclinfo.setJESYSMSG(res_JESYSMSG.getBody());
-//                    ResponseEntity<String> res_SYSPRINT = new RestTemplate(requestFactory).exchange(SYSPRINT_url, HttpMethod.GET, requestQur, String.class);
-//                    res_jclinfo.setSYSPRINT(res_SYSPRINT.getBody());
-                    return new ResponseEntity<JCLInfo>(res_jclinfo, HttpStatus.OK);
-                }
-            }
-            //超时
-            return new ResponseEntity("time out", HttpStatus.valueOf(202));
-        }
-    }
 
     //ismf -6.1
     @Deprecated
@@ -961,6 +853,23 @@ public class SmsController {
         String res = ss.alterBaseConfig(session, config);
         if (res == null || res.equals("")) {
             res = "Can not alter base configuration of " + config.getScds() +
+                    ".\n Or time out.";
+        }
+        return ResponseEntity.ok(res);
+    }
+
+    /**
+     * Create data class of a SCDS
+     */
+    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @RequestMapping(value = "/sms/data-class", method = RequestMethod.POST)
+    public ResponseEntity<String> createDataClass(@RequestBody DataClass dataClass, HttpSession session) {
+        if (AuthUtil.notLogin(session)) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String res = ss.createDataclass(session, dataClass);
+        if (res == null || res.equals("")) {
+            res = "Can not create data class of " + dataClass.getScds() +
                     ".\n Or time out.";
         }
         return ResponseEntity.ok(res);
