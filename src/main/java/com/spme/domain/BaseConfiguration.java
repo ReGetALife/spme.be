@@ -96,7 +96,7 @@ package com.spme.domain;
  *                Possible values : Y/N/BLANK
  */
 @SuppressWarnings("unused")
-public class CdsBaseConfig {
+public class BaseConfiguration {
     private String scds;
     private String bytptrk;
     private String trkpcyl;

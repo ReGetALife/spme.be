@@ -1,6 +1,6 @@
 package com.spme.service;
 
-import com.spme.domain.CdsBaseConfig;
+import com.spme.domain.BaseConfiguration;
 import com.spme.domain.DatasetInfo;
 import org.springframework.stereotype.Service;
 
@@ -109,7 +109,7 @@ public class SmsService {
      * Alter base configuration of a SCDS
      * Sample JCL: SYS1.SACBCNTL(ACBJBAB1)
      */
-    public String createBaseConfig(HttpSession session, CdsBaseConfig config) {
+    public String createBaseConfig(HttpSession session, BaseConfiguration config) {
         if (prepareTable2(session)) {
             String uid = session.getAttribute("ZOSMF_Account").toString();
             String jcl = getHead(uid) +
@@ -132,7 +132,7 @@ public class SmsService {
      * Create base configuration of a SCDS
      * Sample JCL: SYS1.SACBCNTL(ACBJBAB1)
      */
-    public String alterBaseConfig(HttpSession session, CdsBaseConfig config) {
+    public String alterBaseConfig(HttpSession session, BaseConfiguration config) {
         if (prepareTable2(session)) {
             String uid = session.getAttribute("ZOSMF_Account").toString();
             String jcl = getHead(uid) +
