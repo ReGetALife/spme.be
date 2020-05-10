@@ -1,0 +1,269 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAJ2) COMP(DF123): BATCH - POOL SG DEFINE, ALTER,    @D1C*/
+//*                            DISPLAY                           @D1A*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5650-ZOS                                                     @E1C*/
+//* COPYRIGHT IBM CORP. 1996, 2013                               @E1C*/
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//*  CHANGE ACTIVITY:                                                */
+//*$L0=NAVIQUEST,HACS120,96/06/18,SNJTCS: INITIAL VERSION        @L0A*/
+//*$L1=KN20040,HACS120,96/07/13,SNJTCS: TYPO CORRECTED           @L1A*/
+//*10/14/96  CCY - HDZ11C0: Ship as SPE                      @WA22861*/
+//* $T2=k150142,HDZ11E0,111997,SNJTCS: Adding TABL2 parameter    @T2A*/
+//* $T3=K151321,HDZ11E0,091998,SNJTCS: Possible values          2@T3A*/
+//*                                    documentation                 */
+//* 10/18/99 TCS - HDZ11E0: Support for Uplevel SCDS update  @WA41441*/
+//* $V1=SGName   ,HDZ11G0,09/19/00,TCS: Overflow and            2@V1A*/
+//*                                     Extend SG Name Support       */
+//* 05/23/01 TCS - HDZ11F0: Prolog Updation                  @WA49380*/
+//* $W1=COPY POOL,HDZ11H0,01/02/02,TCS: Copy Pool Backup        2@W1A*/
+//*                                    SG Name Support               */
+//* 04/25/02 TCS - HDZ11G0: Add a new parameter SGSTSALL()   @WA53756*/
+//* 08/28/02 TCS - HDZ11G0: Support for defining Multiple    @WA55817*/
+//*                         Pool Storage Groups              @WA55817*/
+//* $A0=EAV    ,HDZ1A10,06/09/28,IBSTG : EAV Support             @A0A*/
+//* $A1=K1A0193,HDZ1A10,06/11/24,IBSTG : EAV fix                 @A1A*/
+//* $C1=SMSR12 ,HDZ1C10,09/05/07,IBSTG : SMSR12 Enhancements     @C1A*/
+//* $D1=SGDISP ,HDZ1D10,10/03/26,IBSTG : SG DISPLAY Support      @D1A*/
+//* $D2=SMASG  ,HDZ1D10,10/08/09,IBSTG : SMA SUPPORT             @D2A*/
+//* $E1=STIERS ,HDZ2210,11/04/15,IBSTG : HSM STORAGE TIERS       @E1A*/
+//* $D3=OA38679,HDZ1D10,12/03/13,IBSTG : Back out SMA Support    @D3A*/
+//* $E2=OA45067,HDZ2210,14/04/29,IBSTG : Add possible values     @E2A*/
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO DEFINE/ALTER/DISPLAY POOL TYPE STORAGE GROUPS  @D1C*
+//* IN BATCH                                                     @D1A*
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*     CHANGE JOBCARD                                               *
+//*     CHANGE PREFIX                                                *
+//*     CHANGE PARAMETERS                                            *
+//************************** ADD BEG *********************************
+//*                                                        3@WA49380 *
+//* Required Fields:                                                 *
+//*                                                                  *
+//*  SCDS     :  Name of SCDS, length 1-44 characters                *
+//*                                                                  *
+//*  STORGRP  :  Name of the storage group                           *
+//*                                                                  *
+//*  LOWTHRS  : Low   value  of allocation/migration  threshold  to  *
+//*             optimize the use of DASD space in a pool SG.         *
+//*             Possible values 0-99.                                *
+//*                                                                  *
+//* TRKLOWTHRS: Use the low value of allocation/migration       5@A1C*
+//*             threshold track-managed to specify the threshold     *
+//*             percentage of space allocation in the track-managed  *
+//*             space that triggers or stops migration of data sets  *
+//*             from volumes in this storage group during interval   *
+//*             migration.                                           *
+//*             Possible values 0-99.                                *
+//*                                                                  *
+//*  GUARBKFR : Specifies the maximum number of days that can elapse *
+//*             between backups. Possible values 1 - 9999,NOLIMIT.   *
+//*                                                             3@E1A*
+//*  PROCPRIOR: Specifies the processing priority of the storage     *
+//*             group. It is used during DFSMShsm space management.  *
+//*             Possible values 1-100, default value is 50.      @E2A*
+//*                                                                  *
+//* Optional Fields:                                       2@WA49380 *
+//*                                                                  *
+//*  DESCR    :  Remarks about  the  Storage  group  being defined / *
+//*              altered.    Maximum length up to 120 characters.    *
+//*                                                                  *
+//*  AUTOMIG  :  Specifies whether the datasets  on volumes in this  *
+//*              storage group can be moved to  DASD or TAPE by the  *
+//*              primary  space  management and interval  migration  *
+//*              functions of DFSMShsm. Possible values are,         *
+//*                                                                  *
+//*              Y  -> Datasets are eligible for primary space       *
+//*                    management migration.                         *
+//*                                                                  *
+//*              N  -> Datasets are not eligible for automatic       *
+//*                    migration.                                    *
+//*                                                                  *
+//*              I  -> Datasets are eligible for primary space       *
+//*                    management and interval migration.            *
+//*                                                                  *
+//*              P  -> Datasets are eligible for primary space       *
+//*                    management but not interval migration.        *
+//*                                                                  *
+//*  MIGSYSNM : Name of the system or system  group where automatic  *
+//*             migration and  space  management of the volumes  in  *
+//*             this  storage  group  would be  performed. Possible  *
+//*             values: System or system group names 1 - 8           *
+//*             alphanumeric characters in length.                   *
+//*                                                                  *
+//*  AUTOBKUP : Specifies whether all  the  volumes in  the storage  *
+//*             are eligible for  automatic backup. Possible values  *
+//*             are Y -> Yes and N -> No                             *
+//*                                                                  *
+//*  BKUPSYS  : Name of the system or  system group where automatic  *
+//*             backup function will be processed.                   *
+//*             Possible values: System or system group names 1 - 8  *
+//*             alphanumeric characters in length.                   *
+//*                                                                  *
+//*  AUTODUMP : Specifies whether the volumes in this storage group  *
+//*             are to be eligible for automatic  dumping. Possible  *
+//*             values are Y -> Yes and N -> No.                     *
+//*                                                                  *
+//*  DMPSYSNM : Name of the system or  system  group  where volumes  *
+//*             in this storage  group  will  automatically dump to  *
+//*             backup devices.                                      *
+//*             Possible values: System or system group names   2@E2A*
+//*             1 - 8 alphanumeric characters in length.             *
+//*                                                         13@V1A   *
+//*  OVRFLOW  : Use this field to indicate whether the Storage Group *
+//*             is an overflow Storage Group. Overflow storage groups*
+//*             are reserved storage pools to handle periods of high *
+//*             demand for primary space allocations.                *
+//*             Possible values are Y -> Yes and N -> No.       2@E2A*
+//*             Default value: N.                                    *
+//*                                                                  *
+//*  EXTSGNM  : Use this field to specify the  name of another pool  *
+//*             storage group, the group where sets from the primary *
+//*             storage group can be extended to. When an extend     *
+//*             storage group name is specified a data set may be    *
+//*             extended to that storage group when it can not be    *
+//*             exteneded to its currently allocated storage group.  *
+//*             Possible values: 1 - 8 alphanumeric characters.  @E2A*
+//*                                                          4@W1A   *
+//*  CPBSGN   : Use this field to specify the name of the storage    *
+//*             group, which contains the eligible volumes           *
+//*             for fast replication backup versions.                *
+//*             Possible values: 1 - 8 alphanumeric characters.  @E2A*
+//*                                                                  *
+//*  DUMPCLAS : Use this field to specify 1 to 5 dump classes. ISMF  *
+//*             neither  processes  nor verifies the values of DUMP  *
+//*             CLASS. 1 - 8 alphanumeric characters.                *
+//*             Classes will be separated by ','.                    *
+//*                                                                  *
+//*  HIGHTHRS : High  value  of allocation/migration  threshold  to  *
+//*             optimize the use of DASD space in a pool SG.         *
+//*             Possible values 1-100.                           @C1C*
+//*                                                                  *
+//*  TRKHITHRS: Use the high value of allocation/migration      5@A1C*
+//*             threshold track-managed to specify the threshold     *
+//*             percentage of space allocation in the track-managed  *
+//*             space that triggers or stops migration of data sets  *
+//*             from volumes in this storage group during interval   *
+//*             migration.                                           *
+//*             Possible values 1-100.                           @C1C*
+//*                                                                  *
+//*  BREAKPT  : Use this field to specify the disk space        5@A1C*
+//*             request, expressed  in number of cylinders,          *
+//*             where the system should prefer the cylinder-managed  *
+//*             space on an EAV.                                     *
+//*             Possible values 0-65520 or blank.                    *
+//*                                                                  *
+//*  SGSTATUS : specify this field to designate the relationship or  *
+//*             status between storage groups and the systems in a   *
+//*             a complex. Possible values are,                      *
+//*                                                                  *
+//*              ENABLE  ->  System or System  Group  can allocate   *
+//*                          and access datasets in SG. Default.     *
+//*              DISALL  ->  System or System Group can't allocate   *
+//*                          or  access datasets in SG.              *
+//*              DISNEW  ->  System or System Group can't allocate   *
+//*                          new datasets in the SG.                 *
+//*              NOTCON  ->  System or System Group is  physically   *
+//*                          disconnected  form the SG and can not   *
+//*                          allocate datasets in it.                *
+//*              QUIALL  ->  If JES3, system can not schedule jobs   *
+//*                          that allocate or access   datasets in   *
+//*                          the SG.  In JES2 system uses  volumes   *
+//*                          in the SG for new allocations only if   *
+//*                          other volumes are not available.        *
+//*              QUINEW  ->  If JES3, system can not schedule jobs   *
+//*                          that allocate new datasets in the SG.   *
+//*                          In case of JES2, system uses  volumes   *
+//*                          in the SG for new allocations only if   *
+//*                          other volumes are not available.        *
+//*                                                                  *
+//*              Up to 32 statuses can be specified separated by     *
+//*              commas to match the 32 systems.  If a status is     *
+//*              skipped, the system status that falls in between two*
+//*              commas will have default value of ENABLE.           *
+//*                                                       15A@WA53756*
+//*  SGSTSALL :  This field is similar to SGSTATUS in functionality. *
+//*              The difference is that this field accepts a single  *
+//*              status value and sets the status of the POOL        *
+//*              storage group on all the systems and system groups  *
+//*              to this value.                                      *
+//*                                                                  *
+//*              Possible Values :                                   *
+//*                 ENABLE/NOTCON/DISALL/DISNEW/QUIALL/QUINEW        *
+//*                                                                  *
+//*           Note:  SGSTSALL and SGSTATUS are mutually exclusive.   *
+//*                  And so, while specifying value for one of these *
+//*                  parameters, either the other parameter should   *
+//*                  not be specified or if specified, it should not *
+//*                  have any value specified.                       *
+//*                                                                  *
+//*   UPDHLVLSCDS: When modifying an SCDS, that was formatted with a *
+//*                higher level of SMS, using a lower level of SMS   *
+//*                will make this application fail unless you        *
+//*                specify the UPDHLVLSCDS parameter as 'Y'.         *
+//*                Default is 'N'.                           @WA41441*
+//*                                                                  *
+//*                Possible values : Y/N/BLANK               @WA41441*
+//************************** ADD END *********************************
+//********************************************************************
+//*
+//STEP1   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAJ2 +
+DEFINE/ALTER +
+SCDS(TEST.CDS) +
+STORGRP(POOLSTGP) +
+DESCR(THIS IS TO DEFINE POOL STORAGE GROUP POOLSTGP) +
+AUTOMIG() +
+MIGSYSNM() +
+AUTOBKUP() +
+BKUPSYS() +
+AUTODUMP() +
+DMPSYSNM() +
+OVRFLOW() +
+EXTSGNM() +
+CPBSGN() +
+DUMPCLAS() +
+HIGHTHRS() +
+LOWTHRS(50) +
+GUARBKFR(NOLIMIT) +
+SGSTATUS() +
+SGSTSALL() +
+BREAKPT() +
+TRKHITHRS() +
+TRKLOWTHRS() +
+PROCPRIOR() +
+UPDHLVLSCDS() +
+)
+/*
+//TEMPFILE  DD  DSN=&&TEMPFILE,DISP=(MOD,PASS),
+//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300
+//*
+//STEP2   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD DSN=&&TEMPFILE,DISP=(OLD,DELETE,DELETE)
+/*
+//STEP3   EXEC ACBJBAOB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAJ2 DISPLAY +
+SCDS(TEST.CDS) +
+STORGRP() +
+)
+//
