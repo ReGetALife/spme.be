@@ -202,12 +202,14 @@ public class SmsService {
     public String createManagementClass(HttpSession session, ManagementClass managementClass) {
         if (prepareTable2(session)) {
             String uid = session.getAttribute("ZOSMF_Account").toString();
+            // add quotes to avoid prefix
+            managementClass.setScds("'" + managementClass.getScds() + "'");
             String jcl = getHead(uid) +
                     "//STEP1   EXEC ACBJBAOB,\n" +
                     "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
                     "//SYSUDUMP DD  SYSOUT=*\n" +
                     "//TEMPFILE  DD  DSN=&&TEMPFILE,DISP=(MOD,PASS),\n" +
-                    "//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300" +
+                    "//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300\n" +
                     "//SYSTSIN  DD *\n" +
                     "PROFILE NOPREFIX\n" +
                     "ISPSTART CMD(ACBQBAJ1 DEFINE +\n" +
@@ -219,7 +221,7 @@ public class SmsService {
                     "//SYSUDUMP DD  SYSOUT=*\n" +
                     "//SYSTSIN  DD DSN=&&TEMPFILE,DISP=(OLD,DELETE,DELETE)\n" +
                     "/*";
-            return js.submitJCL(session, jcl, 104);
+            return js.submitJCL(session, jcl, 108);
         }
         return "";
     }
