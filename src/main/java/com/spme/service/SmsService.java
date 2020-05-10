@@ -188,7 +188,7 @@ public class SmsService {
                     "PROFILE NOPREFIX\n" +
                     "ISPSTART CMD(ACBQBAS1 DEFINE +\n" +
                     fieldsResolver(storageClass) +
-                    ") +\n" +
+                    ")\n" +
                     "/*\n";
             return js.submitJCL(session, jcl, 104);
         }
@@ -212,8 +212,7 @@ public class SmsService {
                     "PROFILE NOPREFIX\n" +
                     "ISPSTART CMD(ACBQBAJ1 DEFINE +\n" +
                     fieldsResolver(managementClass) +
-                    ") +\n" +
-                    "BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(999999)\n" +
+                    ")\n" +
                     "/*\n" +
                     "//STEP2   EXEC ACBJBAOB,\n" +
                     "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
@@ -240,7 +239,7 @@ public class SmsService {
                     "PROFILE NOPREFIX\n" +
                     "ISPSTART CMD(ACBQBAJ2 DEFINE +\n" +
                     fieldsResolver(poolStorageGroup) +
-                    ") +\n" +
+                    ")\n" +
                     "/*\n" +
                     "//TEMPFILE  DD  DSN=&&TEMPFILE,DISP=(MOD,PASS),\n" +
                     "//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300\n" +
