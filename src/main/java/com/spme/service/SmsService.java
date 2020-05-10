@@ -233,6 +233,7 @@ public class SmsService {
     public String createPoolStorageGroup(HttpSession session, PoolStorageGroup poolStorageGroup) {
         if (prepareTable2(session)) {
             String uid = session.getAttribute("ZOSMF_Account").toString();
+            poolStorageGroup.setScds("'" + poolStorageGroup.getScds() + "'");
             String jcl = getHead(uid) +
                     "//STEP1   EXEC ACBJBAOB,\n" +
                     "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
@@ -250,7 +251,7 @@ public class SmsService {
                     "//SYSUDUMP DD  SYSOUT=*\n" +
                     "//SYSTSIN  DD DSN=&&TEMPFILE,DISP=(OLD,DELETE,DELETE)\n" +
                     "/*";
-            return js.submitJCL(session, jcl, 104);
+            return js.submitJCL(session, jcl, 108);
         }
         return "";
     }
