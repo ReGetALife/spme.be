@@ -255,4 +255,124 @@ public class SmsService {
         }
         return "";
     }
+
+    /**
+     * Add volume for storage group
+     * Sample JCL: SYS1.SACBCNTL(ACBJBAIB)
+     */
+    public String addVolume(HttpSession session, StorageGroupVolume volume) {
+        if (prepareTable2(session)) {
+            String uid = session.getAttribute("ZOSMF_Account").toString();
+            volume.setScds("'" + volume.getScds() + "'");
+            String jcl = getHead(uid) +
+                    "//ADDVOL1 EXEC ACBJBAOB,\n" +
+                    "//        PLIB1='SYS1.DGTPLIB',\n" +
+                    "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSUDUMP DD  SYSOUT=*\n" +
+                    "//TEMPFILE  DD  DSN=&&VOLADDS,DISP=(NEW,KEEP),\n" +
+                    "//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300\n" +
+                    "//SYSTSIN  DD *\n" +
+                    "PROFILE NOPREFIX\n" +
+                    "ISPSTART CMD(ACBQBAI9) +\n" +
+                    "BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)\n" +
+                    "/*\n" +
+                    "//VOLADD  DD  *\n" +
+                    fieldsResolver(volume) +
+                    "/*\n" +
+                    "//ADDVOL2 EXEC ACBJBAOB,\n" +
+                    "//        PLIB1='SYS1.DGTPLIB',\n" +
+                    "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSUDUMP DD  SYSOUT=*\n" +
+                    "//SYSTSIN  DD DSN=&&VOLADDS,DISP=(OLD,DELETE)\n";
+            return js.submitJCL(session, jcl, 108);
+        }
+        return "";
+    }
+
+    /**
+     * Translate ACS
+     * Sample JCL: SYS1.SACBCNTL(ACBJBAC2)
+     */
+    public String translateACS(HttpSession session, AcsTranslate acsTranslate) {
+        if (prepareTable2(session)) {
+            String uid = session.getAttribute("ZOSMF_Account").toString();
+            String jcl = getHead(uid) +
+                    "//TRANSLAT EXEC ACBJBAOB,\n" +
+                    "//         PLIB1='SYS1.DGTPLIB',\n" +
+                    "//         TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSTSIN  DD *\n" +
+                    "PROFILE NOPREFIX\n" +
+                    "DEL " + acsTranslate.getListname() + "\n" +
+                    "ISPSTART CMD(ACBQBAO1 +\n" +
+                    fieldsResolver(acsTranslate) +
+                    ") +\n" +
+                    "NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)\n" +
+                    "/*\n" +
+                    "//TRANGEN  EXEC  PGM=IEBGENER\n" +
+                    "//SYSUT1   DD  DSN=" + acsTranslate.getListname() + ",DISP=SHR\n" +
+                    "//SYSUT2   DD  SYSOUT=*\n" +
+                    "//SYSIN    DD  DUMMY\n" +
+                    "//SYSPRINT DD  SYSOUT=*\n";
+            return js.submitJCL(session, jcl, 108);
+        }
+        return "";
+    }
+
+    /**
+     * Validate ACS
+     * Sample JCL: SYS1.SACBCNTL(ACBJBAC2)
+     */
+    public String validateACS(HttpSession session, AcsValidate acsValidate) {
+        if (prepareTable2(session)) {
+            String uid = session.getAttribute("ZOSMF_Account").toString();
+            String jcl = getHead(uid) +
+                    "//VALIDAT EXEC ACBJBAOB,\n" +
+                    "//         PLIB1='SYS1.DGTPLIB',\n" +
+                    "//         TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSTSIN  DD *\n" +
+                    "PROFILE NOPREFIX\n" +
+                    "DEL " + acsValidate.getListname() + "\n" +
+                    "ISPSTART CMD(ACBQBAO2 +\n" +
+                    fieldsResolver(acsValidate) +
+                    ") +\n" +
+                    "NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)\n" +
+                    "/*\n" +
+                    "//VALGEN  EXEC  PGM=IEBGENER\n" +
+                    "//SYSUT1   DD  DSN=" + acsValidate.getListname() + ",DISP=SHR\n" +
+                    "//SYSUT2   DD  SYSOUT=*\n" +
+                    "//SYSIN    DD  DUMMY\n" +
+                    "//SYSPRINT DD  SYSOUT=*\n";
+            return js.submitJCL(session, jcl, 108);
+        }
+        return "";
+    }
+
+    /**
+     * Test ACS
+     * Sample JCL: SYS1.SACBCNTL(ACBJBAC2)
+     */
+    public String testACS(HttpSession session, AcsTest acsTest) {
+        if (prepareTable2(session)) {
+            String uid = session.getAttribute("ZOSMF_Account").toString();
+            String jcl = getHead(uid) +
+                    "//TEST EXEC ACBJBAOB,\n" +
+                    "//         PLIB1='SYS1.DGTPLIB',\n" +
+                    "//         TABL2=" + uid + ".TEST.ISPTABL\n" +
+                    "//SYSTSIN  DD *\n" +
+                    "PROFILE NOPREFIX\n" +
+                    "DEL " + acsTest.getListname() + "\n" +
+                    "ISPSTART CMD(ACBQBAIA +\n" +
+                    fieldsResolver(acsTest) +
+                    ") +\n" +
+                    "NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)\n" +
+                    "/*\n" +
+                    "//TSTGEN  EXEC  PGM=IEBGENER\n" +
+                    "//SYSUT1   DD  DSN=" + acsTest.getListname() + ",DISP=SHR\n" +
+                    "//SYSUT2   DD  SYSOUT=*\n" +
+                    "//SYSIN    DD  DUMMY\n" +
+                    "//SYSPRINT DD  SYSOUT=*\n";
+            return js.submitJCL(session, jcl, 108);
+        }
+        return "";
+    }
 }
