@@ -264,6 +264,10 @@ public class SmsService {
         if (prepareTable2(session)) {
             String uid = session.getAttribute("ZOSMF_Account").toString();
             volume.setScds("'" + volume.getScds() + "'");
+            if(volume.getStatus().equals("")) {
+                // it is actually required
+                volume.setStatus("ENABLE");
+            }
             String jcl = getHead(uid) +
                     "//ADDVOL1 EXEC ACBJBAOB,\n" +
                     "//        PLIB1='SYS1.DGTPLIB',\n" +
@@ -278,13 +282,14 @@ public class SmsService {
                     "/*\n" +
                     "//VOLADD  DD  *\n" +
                     fieldsResolver(volume) +
+                    "\n" +
                     "/*\n" +
                     "//ADDVOL2 EXEC ACBJBAOB,\n" +
                     "//        PLIB1='SYS1.DGTPLIB',\n" +
                     "//        TABL2=" + uid + ".TEST.ISPTABL\n" +
                     "//SYSUDUMP DD  SYSOUT=*\n" +
                     "//SYSTSIN  DD DSN=&&VOLADDS,DISP=(OLD,DELETE)\n";
-            return js.submitJCL(session, jcl, 108);
+            return js.submitJCL(session, jcl, 109);
         }
         return "";
     }
