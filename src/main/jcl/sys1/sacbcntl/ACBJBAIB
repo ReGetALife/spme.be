@@ -1,0 +1,181 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAIB) COMP(DF123): BATCH  - ALTER STORAGE GROUP      @D1C*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5650-ZOS                                                    2@E1C*/
+//* COPYRIGHT IBM CORP. 1996, 2013                                   */
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//*$K0=NAVIQUEST,HACS110,95/08/04,SNJADR: INITIAL VERSION        @K0A*/
+//*$K1=KNQ0003,HACS110,95/08/04,SNJTCS: COMMENT CORRECTION       @K1C*/
+//*$L0=NAVIQUEST,HACS120,96/06/18,SNJTCS: RELEASE 2 CHANGES      @L0A*/
+//*10/14/96  CCY - HDZ11C0: Ship as SPE                      @WA22861*/
+//*07/08/97  CCY - HDZ11D0: document valid status            @WA27962*/
+//*$T2=k150142,HDZ11E0,111997,SNJTCS: Adding TABL2 parameter     @T2A*/
+//* 01/23/98 TCS - HDZ11D0: To Add Volume Status for each    @WA29937*/
+//*                         System, in a Storage Group.      @WA29937*/
+//*$U1=NaviQuest,HDZ11F0,99/08/04,SNJTCS: NQ Enhancements for   2@U1A*/
+//*                                       DFSMS/MVS ISMF V2R10 Volume*/
+//*                                       Alter Support Added.       */
+//* 09/20/99 TCS - HDZ11E0: Volume ADD Command fails if the  @WA41026*/
+//*                         SCDS name is too long.           @WA41026*/
+//* 10/18/99 TCS - HDZ11E0: Support for Uplevel SCDS update  @WA41441*/
+//* 05/23/01 TCS - HDZ11F0: Prolog Updation                  @WA49380*/
+//* 04/03/02 TCS - HDZ11G0: Add a new parameter STATUSALL()  @WA53756*/
+//*$D1=OA32019,HDZ1D10,10/22/10,IBSTG: Inconsistent use of SCDS  @D1A*/
+//*                                    (KFI0634)                 @D1A*/
+//*$E1=SGDISPL,HDZ2210,12/06/20,IBSTG: Add volumes range         @E1A*/
+//*                                                                  */
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO ADD NEW VOLUMES AND THEIR STATUS                   *
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*      CHANGE JOBCARD                                              *
+//*      CHANGE PREFIX                                               *
+//*      CHANGE PARAMETERS                                           *
+//*                                                                  *
+//*      TEMPFILE - LISTING DATA SET (OUTPUT)                        *
+//*      VOLADD   - VOLUMES TO BE ADDED (INPUT)                      *
+//*                                                                  *
+//*   PARAMETERS:                                                    *
+//*                                                                  *
+//* Required Fields:                                       2@WA49380 *
+//*                                                                  *
+//*      SCDS     - SOURCE CONTROL DATA SET                      @D1C*
+//*                                                             7@E1A*
+//*      VOL      - THIS FIELD CAN CONTAIN EITHER A VOLUME SERIAL    *
+//*                 NUMBER OR THE FIRST COMMON CHARACTERS IN A RANGE *
+//*                 OF VOLUME SERIAL NUMBERS. IF PART OF RANGE,      *
+//*                 ENTER THE REMAINING DISTINCTIVE CHARACTERS OF    *
+//*                 THE VOLUME SERIAL NUMBERS IN THE 'FROM' AND 'TO' *
+//*                 FIELDS, AND IF YOU WANT, THE 'SUF' FIELD.        *
+//*                                                                  *
+//*      SG       - STORAGE GROUP                                    *
+//*                                                         3@WA49380*
+//* Optional Fields:                                                 *
+//*                                                            26@E1A*
+//*  Set the criteria in the following fields to specify range of    *
+//*  volumes (you can specify as many as 100 volumes at a time):     *
+//*                                                                  *
+//*      FROM     - Use this field to specify the characters unique  *
+//*                 to the first volume serial number in a range.    *
+//*                 Use the VOL and SUF fields to select leading     *
+//*                 and trailing characters. Valid entries are       *
+//*                 decimal or hexadecimal numbers or alphabet.      *
+//*                                                                  *
+//*      TO       - Use this field to specify the characters unique  *
+//*                 to the last volume serial number in a range.     *
+//*                 Use the VOL and SUF fields to  select leading    *
+//*                 and trailing characters. Valid entries are       *
+//*                 decimal or hexadecimal numbers or alphabet.      *
+//*                                                                  *
+//*      SUF      - When you specify values in the FROM and TO       *
+//*                 fields, you can specify in this field the        *
+//*                 common trailing characters in a range of volume  *
+//*                 serial numbers. Enter up to five characters.     *
+//*                                                                  *
+//*      TYPE     - When you specify hexadecimal numbers in the FROM *
+//*                 and TO fields, you must enter 'X' in this field. *
+//*                 When you specify alphabets in the FROM and TO    *
+//*                 fields, you must enter 'A' in this field.        *
+//*                 The default is decimal.                          *
+//*                                                                  *
+//*      STATUS   - STATUS (ENABLE/NOTCON/DISALL/DISNEW/QUIALL/      *
+//*                         QUINEW)                                  *
+//*                Up to 32 statuses can be specified separated by   *
+//*               commas to match the 32 systems.  If a status is    *
+//*               skipped, the system status that falls in between 2 *
+//*               commas will have default value of ENABLE.  @WA29937*
+//*                                                       13A@WA53756*
+//*      STATUSALL - STATUSALL (ENABLE/NOTCON/DISALL/DISNEW/QUIALL/  *
+//*                         QUINEW)                                  *
+//*                If Volume status in all the Systems needs to be   *
+//*               set to a single value (for example ENABLE),        *
+//*               STATUSALL is an easier option compared to the      *
+//*               parameter STATUS.                                  *
+//*                                                                  *
+//*           Note:  STATUSALL and STATUS are mutually exclusive.    *
+//*                  And so, while specifying value for one of these *
+//*                  parameters, either the other parameter should   *
+//*                  not be specified or if specified, it should not *
+//*                  have any value specified.                       *
+//*                                                                  *
+//*      UPDHLVLSCDS - When modifying an SCDS, that was formatted    *
+//*                    with a higher level of SMS, using a lower     *
+//*                    level of SMS will make this application fail  *
+//*                    unless you specify the UPDHLVLSCDS parameter  *
+//*                    as 'Y'.  Default is 'N'.              @WA41441*
+//*                                                                  *
+//*                      If specified, this should be the first      *
+//*                    parameter on  either VOLDEL or ADDVOL DD      *
+//*                    names.                                @WA41441*
+//*                                                                  *
+//*                    Possible values : Y/N/BLANK           @WA41441*
+//*                                                                  *
+//*   To DELETE volume, specify SCDS, VOL and SG,                @D1C*
+//*    and use VOLDEL for DDname.                            @WA29937*
+//*                                                                  *
+//*   To ALTER Volume, specify all the parameters as in VOLUME 11@U1A*
+//*   ADD and use VOLALT as DDname.                                  *
+//*                                                                  *
+//*   Specify '+' as the continuation character.  When splitting a   *
+//*    word or a parameter to the next line, and there should not    *
+//*    be any spaces, don't leave any blank spaces before the        *
+//*    continuation character '+'.                           @WA41026*
+//*                                                                  *
+//*   If you specify all the three types of commands DELETE, ADD and *
+//*   DEFINE then DELETEs are processed first, ALTERs are processed  *
+//*   next and ADDs are processed finally irrespective of the order  *
+//*   of the commands in the JOB.                                    *
+//********************************************************************
+//ADDVOL1 EXEC ACBJBAOB,
+//        PLIB1='SYS1.DGTPLIB',
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//TEMPFILE  DD  DSN=&&VOLADDS,DISP=(NEW,KEEP),
+//  SPACE=(TRK,(1,1)),LRECL=300,RECFM=F,BLKSIZE=300
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAI9) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//VOLADD  DD  *
+UPDHLVLSCDS()
+SCDS(MYCDS) VOL(SMS101) SG(PRIMARY) STATUS(ENABLE)
+SCDS(MYCDS) VOL(SMS111) SG(PRIMARY) STATUS(DISALL,+
+ENABLE,,DISNEW,,NOTCON,DISALL,ENABLE,QUIALL)
+SCDS(MYCDS) VOL(SMS121) SG(PRIMARY) +
+STATUS(DISNEW)
+SCDS(MYCDS) VOL(SMS131) SG(PRIMARY) +
+STATUS(DISALL,DISNEW,ENABLE,NOTCON,DISALL,DISNEW,DISALL,QUIALL,+
+DISALL,QUINEW,ENABLE,NOTCON,QUIALL,DISNEW,DISALL,QUIALL,+
+DISNEW,ENABLE,ENABLE,DISNEW,QUIALL,DISALL,DISALL,NOTCON,+
+NOTCON,QUINEW,ENABLE,NOTCON,QUIALL,DISNEW,ENABLE,QUIALL)
+SCDS(MYCDS) VOL(SMS) FROM(14) TO(20) SUF(1) TYPE() SG(PRIMARY) +
+STATUS(ENABLE)
+SCDS(MYCDS) VOL(SMSA) FROM(A) TO(X) SUF(Y) TYPE(A) SG(PRIMARY) +
+STATUS(ENABLE)
+SCDS(MYCDS) VOL(SMSX) FROM(1) TO(C) SUF(G) TYPE(X) SG(PRIMARY) +
+STATUS(ENABLE)
+SCDS(MYCDS) VOL(SMS211) SG(PRIMARY) STATUSALL(ENABLE)
+SCDS(MYCDS) VOL(SMS221) SG(PRIMARY) STATUS(ENABLE) STATUSALL()
+SCDS(MYCDS) VOL(SMS231) SG(PRIMARY) STATUS() STATUSALL(ENABLE)
+/*
+//VOLALT  DD  *                                              /* 4@U1A*/
+/*
+//VOLDEL  DD *
+/*
+//ADDVOL2 EXEC ACBJBAOB,
+//        PLIB1='SYS1.DGTPLIB',
+//        TABL2=userid.TEST.ISPTABL
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD DSN=&&VOLADDS,DISP=(OLD,DELETE)
+//********************************************************************

@@ -1,0 +1,234 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAC2) COMP(DF123):BATCH TRANSLATE,VALIDATE,TEST&CMP  @D1C*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5694-A01                                                     @D1C*/
+//* COPYRIGHT 1996, 2011 IBM CORP.                               @D1C*/
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//*$K0=NAVIQUEST,HACS110,95/08/04,SNJADR: INITIAL VERSION        @K0A*/
+//*$K1=KNQ0003,HACS110,95/08/04,SNJTCS: COMMENT CORRECTION       @K1C*/
+//*02/29/96  TCS - HACS110:  REMOVED SEQUENCE NUMBERS        @WA18945*/
+//*$L0=NAVIQUEST,HACS120,96/06/18,SNJTCS: RELEASE 2 CHANGES      @L0A*/
+//*10/04/96  CCY - HDZ11C0: Ship as SPE                      @WA22861*/
+//*$T2=k150142  ,HDZ11E0,11/19/97,SNJTCS: Adding TABL2 parameter @T2A*/
+//*05/29/98  TCS - HDZ11D0: Adding XCPSPACE parameter        @WA32832*/
+//*03/30/99  CCY - HDZ11D0: Add note for ISPSTART cmd line   @WA38094*/
+//*07/01/99  TCS - HDZ11D0: Remove note for ISPSTART cmd line@WA39926*/
+//*11/12/99  TCS - HDZ11E0: Support for Uplevel SCDS update  @WA41441*/
+//*$D1=OA32019,HDZ1D10,10/22/10,IBSTG: Inconsistent use of SCDS  @D1A*/
+//*                                    (KFI0634)                 @D1A*/
+//*                                                                  */
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//*  SAMPLE JCL TO DO FOUR OPEARTIONS:                               *
+//*                                                                  *
+//*     1. TRANSLATE ACS ROUTINES (ISMF OPTION 7.2)                  *
+//*     2. VALIDATE ACS ROUTINES (ISMF OPTION 7.3)                   *
+//*     3. TEST ACS ROUTINES (ISMF OPTION 7.4.3)                     *
+//*     4. COMPARE BASE & NEW ACS LISTINGS                           *
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*     CHANGE JOBCARD                                               *
+//*     CHANGE PREFIX                                                *
+//*     CHANGE PARAMETERS                                            *
+//*                                                                  *
+//********************************************************************
+//********************************************************************
+//*                                                                  *
+//* TRANSLATE STEP:                                                  *
+//*                                                                  *
+//*  ACSSRC      - PDS CONTAINING ACS ROUTINES TO BE                 *
+//*                TRANSLATED (INPUT)                                *
+//*  MEMBER      - MEMBER NAME OF THE ROUTINE TO BE                  *
+//*                TRANSLATED (INPUT)                                *
+//*  SCDS        - NAME OF SCDS INTO WHICH THE ACS ROUTINES ARE  @D1C*
+//*                TO BE TRANSLATED (OUTPUT)                         *
+//*  LISTNAME    - TRANSLATE LISTING (OUTPUT)                        *
+//*  UPDHLVLSCDS - CONFIRM OPERATION ON AN UPLEVEL SCDS      @WA41441*
+//*                When modifying an SCDS, that was formatted with a *
+//*                higher level of SMS, using a lower level of SMS   *
+//*                will make this application fail unless you        *
+//*                specify the UPDHLVLSCDS parameter as 'Y'.         *
+//*                Default is 'N'.                           @WA41441*
+//*                Possible values : Y/N/BLANK               @WA41441*
+//********************************************************************
+//TRANSLAT EXEC ACBJBAOB,
+//         PLIB1='SYS1.DGTPLIB',
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+DEL DATACLAS.LISTING
+DEL MGMTCLAS.LISTING
+DEL STORGRP.LISTING
+DEL STORCLAS.LISTING
+ISPSTART CMD(ACBQBAO1 +
+ACSSRC(ACS.SOURCE) MEMBER(DATACLAS) +
+SCDS(MYSCDS) LISTNAME(DATACLAS.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+
+ISPSTART CMD(ACBQBAO1 +
+ACSSRC(ACS.SOURCE) MEMBER(STORCLAS) +
+SCDS(MYSCDS) LISTNAME(STORCLAS.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+
+ISPSTART CMD(ACBQBAO1 +
+ACSSRC(ACS.SOURCE) MEMBER(MGMTCLAS) +
+SCDS(MYSCDS) LISTNAME(MGMTCLAS.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+
+ISPSTART CMD(ACBQBAO1 +
+ACSSRC(ACS.SOURCE) MEMBER(STORGRP) +
+SCDS(MYSCDS) LISTNAME(STORGRP.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+
+/*
+//********************************************************************
+//*                                                                  *
+//*   COPY TRANSLATE LISTINGS                                        *
+//*                                                                  *
+//*    SYSUT1 - INPUT (FROM PREVIOUS STEP)                           *
+//*    SYSUT2 - OUTPUT                                               *
+//*                                                                  *
+//********************************************************************
+//TRANGEN  EXEC  PGM=IEBGENER
+//SYSUT1   DD  DSN=IBMUSER.DATACLAS.LISTING,DISP=SHR
+//         DD  DSN=IBMUSER.STORCLAS.LISTING,DISP=SHR
+//         DD  DSN=IBMUSER.MGMTCLAS.LISTING,DISP=SHR
+//         DD  DSN=IBMUSER.STORGRP.LISTING,DISP=SHR
+//SYSUT2   DD  SYSOUT=*
+//SYSIN    DD  DUMMY
+//SYSPRINT DD  SYSOUT=*
+//********************************************************************
+//*                                                                  *
+//*   VALIDATE STEP:                                                 *
+//*                                                                  *
+//*  SCDS        - NAME OF SCDS THAT CONTAINS THE TRANSLATED ACS @D1C*
+//*                ROUTINES TO BE VALIDATED (INPUT)                  *
+//*  TYPE        - TYPE OF ACS ROUTINE TO BE VALIDATED (INPUT)       *
+//*  LISTNAME    - VALIDATE LISTING (OUTPUT)                         *
+//*  UPDHLVLSCDS - CONFIRM OPERATION ON AN UPLEVEL SCDS(Y/N) @WA41441*
+//*                                                                  *
+//********************************************************************
+//VALIDAT  EXEC ACBJBAOB,
+//         PLIB1='SYS1.DGTPLIB',
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+DEL VALIDAT.LISTING
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAO2 SCDS(MYSCDS) TYPE(*) +
+LISTNAME(VALIDAT.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//*   COPY VALIDATE LISTING                                          *
+//*                                                                  *
+//*    SYSUT1 - INPUT (FROM PREVIOUS STEP)                           *
+//*    SYSUT2 - OUTPUT                                               *
+//*                                                                  *
+//********************************************************************
+//VALGEN   EXEC  PGM=IEBGENER
+//SYSUT1   DD  DSN=IBMUSER.VALIDAT.LISTING,DISP=SHR
+//SYSUT2   DD  SYSOUT=*
+//SYSIN    DD  DUMMY
+//SYSPRINT DD  SYSOUT=*
+//********************************************************************
+//*                                                                  *
+//*   TEST STEP                                                      *
+//*                                                                  *
+//*    SCDS     - NAME OF SCDS (INPUT)                           @D1C*
+//*    TESTBED  - PDS CONTAINING TEST CASES (INPUT)                  *
+//*    MEMBER   - MEMBERS TO BE TESTED IN TESTBED (INPUT)            *
+//*    DC,SC,MC,SG - ROUTINES TO BE TESTED (INPUT)                   *
+//*    LISTNAME - TEST LISTING (OUTPUT)                              *
+//*                                                                  *
+//********************************************************************
+//TEST     EXEC ACBJBAOB,
+//         PLIB1='SYS1.DGTPLIB',
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+DEL NEW.LISTING
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAIA +
+SCDS(MYSCDS) +
+TESTBED(TESTCASE.LIBRARY) MEMBER(*) +
+DC(Y) SC(Y) MC(Y) SG(Y) +
+LISTNAME(NEW.LISTING)) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//*   COPY TEST LISTING                                              *
+//*                                                                  *
+//*    SYSUT1 - INPUT (FROM PREVIOUS STEP)                           *
+//*    SYSUT2 - OUTPUT                                               *
+//*                                                                  *
+//********************************************************************
+//TSTGEN   EXEC  PGM=IEBGENER
+//SYSUT1   DD  DSN=IBMUSER.NEW.LISTING,DISP=SHR
+//SYSUT2   DD  SYSOUT=*
+//SYSIN    DD  DUMMY
+//SYSPRINT DD  SYSOUT=*
+//********************************************************************
+//*                                                                  *
+//* COMPARE ACS LISTINGS                                             *
+//*                                                                  *
+//*   PARAMETERS:                                                    *
+//*                                                                  *
+//*     BASELIST - BASE ACS TEST LIST (INPUT)                        *
+//*     NEWLIST  - NEW ACS TEST LIST (INPUT)                         *
+//*     TESTBED  - PDS CONTAINING TEST CASES (REFERENCE INPUT)       *
+//*     RSLTDSN  - COMPARISON RESULTS DATA SET (OUTPUT)              *
+//*     XCPTPDS  - EXCEPTION TEST CASE PDS (OUTPUT)                  *
+//*     XCPSPACE - SPACE values of Except DS (Optional)    3a@WA32832*
+//*       Values: (Primary Tracks,Secondary Tracks,Directory Blocks) *
+//*         which are positional and optional. Defaults: (3,1,20).   *
+//*                                                                  *
+//*   NOTE:  If you receive message IEC217I B14-0C on your exception *
+//*       data set, you need to increase your data set size by using *
+//*       the XCSPACE parameter (specially the directory blocks)     *
+//*                                                                  *
+//********************************************************************
+//COMPARE  EXEC ACBJBAOB,
+//         PLIB1='SYS1.DGTPLIB',
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+DEL PDS4
+DEL RESULTS.LISTING
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(%ACBQBAC1 +
+BASELIST(BASE.TESTLIST) +
+NEWLIST(NEW.TESTLIST) +
+TESTBED(TESTCASE.LIBRARY) +
+RSLTDSN(COMPARE.LISTING) +
+XCPTPDS(TESTCASE.EXCP) +
+XCPSPACE(5,3,30)) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//*   COPY COMPARISON RESULTS                                        *
+//*                                                                  *
+//*    SYSUT1 - INPUT (FROM PREVIOUS STEP)                           *
+//*    SYSUT2 - OUTPUT                                               *
+//*                                                                  *
+//********************************************************************
+//CMPGEN   EXEC PGM=IEBGENER
+//SYSUT1   DD DISP=SHR,DSN=IBMUSER.COMPARE.LISTING
+//SYSUT2   DD SYSOUT=*
+//SYSIN    DD DUMMY
+//SYSPRINT DD SYSOUT=*
+//*
