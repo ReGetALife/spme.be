@@ -318,7 +318,7 @@ public class SmsService {
                     "//SYSUT2   DD  SYSOUT=*\n" +
                     "//SYSIN    DD  DUMMY\n" +
                     "//SYSPRINT DD  SYSOUT=*\n";
-            return js.submitJCL(session, jcl, 108);
+            return js.submitJCL(session, jcl, 106);
         }
         return "";
     }
@@ -347,7 +347,7 @@ public class SmsService {
                     "//SYSUT2   DD  SYSOUT=*\n" +
                     "//SYSIN    DD  DUMMY\n" +
                     "//SYSPRINT DD  SYSOUT=*\n";
-            return js.submitJCL(session, jcl, 108);
+            return js.submitJCL(session, jcl, 106);
         }
         return "";
     }
@@ -376,7 +376,7 @@ public class SmsService {
                     "//SYSUT2   DD  SYSOUT=*\n" +
                     "//SYSIN    DD  DUMMY\n" +
                     "//SYSPRINT DD  SYSOUT=*\n";
-            return js.submitJCL(session, jcl, 108);
+            return js.submitJCL(session, jcl, 106);
         }
         return "";
     }
