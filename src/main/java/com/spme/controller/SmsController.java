@@ -191,7 +191,7 @@ public class SmsController {
     }
 
     /**
-     * Translate ACS
+     * Test ACS
      */
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/acs/test", method = RequestMethod.POST)
