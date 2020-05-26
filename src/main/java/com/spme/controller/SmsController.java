@@ -178,7 +178,7 @@ public class SmsController {
      */
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/sms/acs/validate", method = RequestMethod.POST)
-    public ResponseEntity<String> translateACS(@RequestBody AcsValidate acsValidate, HttpSession session) {
+    public ResponseEntity<String> validateACS(@RequestBody AcsValidate acsValidate, HttpSession session) {
         if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body(null);
         }
