@@ -2,7 +2,10 @@
 
 <p align="left">
 <a href ="https://github.com/ReGetALife/spme.be/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/badge/license-MIT-blue"></a>
-<a href="https://travis-ci.com/ReGetALife/spme.be"><img src="https://travis-ci.com/ReGetALife/spme.be.svg?token=xxdBSxeuzqfeBx7LkjpY&branch=master"></a>
+<a href="https://travis-ci.com/ReGetALife/spme.be"><img src="https://travis-ci.com/ReGetALife/spme.be.svg?branch=master"></a>
+<a href="https://docs.docker.com/docker-hub/builds/"><img alt="Docker Cloud Automated build" src="https://img.shields.io/docker/cloud/automated/getalife/spme.be"></a>
+<a href="https://hub.docker.com/r/getalife/spme.be/builds"><img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/getalife/spme.be"></a>
+<a href="https://hub.docker.com/r/getalife/spme.be"><img alt="Docker Image Size (tag)" src="https://img.shields.io/docker/image-size/getalife/spme.be/latest"></a>
 </p>
 
 This is the back-end project of a simulation platform of mainframe experiment at Tongji University, which is based on z/OSMF REST APIs . 
@@ -48,6 +51,14 @@ java -jar target/be-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 - 20201 Site(front-end)
 - 20202 API(back-end)
 - 20203 MySQL
+
+### Deploy with Docker
+
+you can deploy this project to your server in ease
+
+```bash
+docker run --name spme-be -d -p 20202:20202 -v /spme/report:/usr/report getalife/spme.be:latest
+```
 
 ### Built With
 
