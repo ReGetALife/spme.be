@@ -54,7 +54,7 @@ java -jar target/be-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 
 ### Deploy with Docker
 
-you can deploy this project to your server in ease
+You can deploy this project to your server in ease.
 
 ```bash
 docker run --name spme-be -d -p 20202:20202 -v /spme/report:/usr/report getalife/spme.be:latest
@@ -67,4 +67,5 @@ docker run --name spme-be -d -p 20202:20202 -v /spme/report:/usr/report getalife
 * [IntelliJ IDEA](https://www.jetbrains.com/idea/) - IDE
 * [YApi](https://github.com/YMFE/yapi) - API Management
 * [Travis CI](https://travis-ci.com/) - Continuous Integration
-* [Jenkins](https://jenkins.io) - Continuous Deployment
+* [Jenkins(deprecated)](https://jenkins.io) - Continuous Deployment
+* [Docker Hub](https://hub.docker.com) - Automated build
