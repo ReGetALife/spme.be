@@ -45,7 +45,7 @@ public class DraftController {
      */
     @CrossOrigin(origins = "*", allowCredentials = "true")
     @RequestMapping(value = "/draft", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String, Object>>> getDraft(@RequestParam String lab,@RequestParam String lower_lab,@RequestParam String step, HttpSession session) {
+    public ResponseEntity<List<Map<String, Object>>> getDraft(@RequestParam String lab,@RequestParam int lower_lab,@RequestParam int step, HttpSession session) {
         if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body(null);
         }

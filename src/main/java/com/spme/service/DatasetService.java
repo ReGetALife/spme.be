@@ -101,6 +101,15 @@ public class DatasetService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //若操作系统是windows则对换行符进行替换
+        String osName = System.getProperty("os.name").toLowerCase();
+        if(osName.contains("windows")){
+            s.replaceAll("\n", "\r\n");
+        } else{
+            s.replaceAll("\r\n", "\n");
+        }
+
         return s;
     }
 

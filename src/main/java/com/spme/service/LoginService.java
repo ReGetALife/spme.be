@@ -1,8 +1,10 @@
 package com.spme.service;
 
+import com.spme.dao.TeacherDao;
 import com.spme.utils.AuthUtil;
 import com.spme.utils.SslUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,6 +30,8 @@ public class LoginService {
 
     @Resource
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private TeacherDao teacherDao;
 
     public String login(Map<String, String> account, HttpSession session) {
         try {
@@ -105,9 +109,9 @@ public class LoginService {
         //判断是否教师登录
         session.setAttribute("is_teacher", "no");
         try {
-            String sql = "select * from teacher where id=?";
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, session.getAttribute("ZOSMF_Account").toString());
-            if (list.size() > 0) {
+            //String sql = "select * from teacher where id=?";
+            //List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, session.getAttribute("ZOSMF_Account").toString());
+            if (teacherDao.existsById(session.getAttribute("ZOSMF_Account").toString())) {
                 //存在教师表中，赋予教师身份
                 session.setAttribute("is_teacher", "yes");
             }
