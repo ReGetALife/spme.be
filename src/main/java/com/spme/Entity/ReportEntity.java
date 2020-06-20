@@ -16,15 +16,15 @@ public class ReportEntity {
 
     @Id
     @Column(name = "step")
-    int step;
+    Integer step;
 
     @Id
     @Column(name = "lowerLab")
-    int lowerLab;
+    Integer lowerLab;
 
     @Id
     @Column(name = "questionId")
-    int questionId;
+    Integer questionId;
 
     @Column(name = "answer")
     String answer;

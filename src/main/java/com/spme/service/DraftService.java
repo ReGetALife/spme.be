@@ -1,6 +1,5 @@
 package com.spme.service;
 
-import com.spme.Entity.QuestionEntity;
 import com.spme.Entity.ReportEntity;
 import com.spme.dao.QuestionDao;
 import com.spme.dao.ReportDao;
@@ -64,7 +63,7 @@ public class DraftService {
         //List<Map<String, Object>> list = jdbcTemplate.queryForList(sql2, uid, lab, step, subLab);
         for(Map<String, Object> q : allStepQuestionsList) {
             q.put("answer", "");//fallback
-            ReportEntity reportEntity = reportDao.findByUidAndLabAndStepAndLowerLabAAndQuestionId(uid, lab, step, subLab, Integer.parseInt(q.get("question_id").toString()));
+            ReportEntity reportEntity = reportDao.findByUidAndLabAndStepAndLowerLabAndQuestionId(uid, lab, step, subLab, Integer.parseInt(q.get("question_id").toString()));
             q.put("answer", reportEntity.getAnswer());
 //            for (ReportEntity a: reportEntityList){
 //                if(q.get("question_id").toString().equals(a.get("question_id").toString())) {

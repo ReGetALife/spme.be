@@ -15,13 +15,13 @@ public class ResultEntity {
     String lab;
 
     @Column(name = "score")
-    int score;
+    Integer score;
 
     @Column(name = "comment")
     String comment;
 
     @Column(name = "isRelease")
-    int isRelease;
+    Integer isRelease;
 
     public ResultEntity() {
     }

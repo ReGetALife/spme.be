@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface ReportDao extends JpaRepository<ReportEntity, ReportMultiKeys> {
     List<ReportEntity> findAll();
-    ReportEntity findByUidAndLabAndStepAndLowerLabAAndQuestionId(String uid, String lab, int step, int lowerLab, int questionId);
+    ReportEntity findByUidAndLabAndStepAndLowerLabAndQuestionId(String uid, String lab, int step, int lowerLab, int questionId);
 }

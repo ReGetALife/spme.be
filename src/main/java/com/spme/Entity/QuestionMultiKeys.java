@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class QuestionMultiKeys implements Serializable {
     protected String lab;
-    protected int lowerLab;
-    protected int questionId;
-    protected int step;
+    protected Integer lowerLab;
+    protected Integer questionId;
+    protected Integer step;
 }
