@@ -1,7 +1,10 @@
 package com.spme.controller;
 
+import com.spme.Entity.ReportEntity;
+import com.spme.dao.ReportDao;
 import com.spme.utils.AuthUtil;
 import com.spme.utils.PdfUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,9 @@ import java.util.Map;
 public class StudentsController {
     @Value("${com.spme.controller.pdfBasePath}")
     private String pdfBasePath;
+
+    @Autowired
+    ReportDao reportDao;
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -54,21 +60,21 @@ public class StudentsController {
             throw new UnauthorizedException();
         } else {
             String lab = req.get("lab");
-            String step = req.get("step");
-            String lower_lab = req.get("lower_lab");
+            int step = Integer.parseInt(req.get("step"));
+            int lower_lab = Integer.parseInt(req.get("lower_lab"));
             String uid = session.getAttribute("ZOSMF_Account").toString();
             String sql1 = "select question_id from question where lab=? and step=? and lower_lab=?";
-            String sql2 = "select question_id, answer from report where uid=? and lab=? and step=? and lower_lab=?";
+            //String sql2 = "select question_id, answer from report where uid=? and lab=? and step=? and lower_lab=?";
             List<Map<String, Object>> allStepQuestionsList = jdbcTemplate.queryForList(sql1, lab, step, lower_lab);
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql2, uid, lab, step, lower_lab);
+            //List<Map<String, Object>> list = jdbcTemplate.queryForList(sql2, uid, lab, step, lower_lab);
             for(Map<String, Object> q : allStepQuestionsList) {
                 q.put("answer", "");//fallback
-                for (Map<String, Object> a: list){
-                    if(q.get("question_id").toString().equals(a.get("question_id").toString())) {
-                        q.put("answer", a.get("answer"));
-                        break;
-                    }
-                }
+                //for (Map<String, Object> a: list){
+                ReportEntity reportEntity = reportDao.findByUidAndLabAndStepAndLowerLabAndQuestionId(uid, lab, step, lower_lab, Integer.parseInt(q.get("question_id").toString()));
+                    //if(q.get("question_id").toString().equals(a.get("question_id").toString())) {
+                q.put("answer", reportEntity.getAnswer());
+                        //break;
+                    //}
             }
             return allStepQuestionsList;
         }
@@ -85,9 +91,9 @@ public class StudentsController {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            String sql_search = "select * from report where uid=? and lab=?;";
-            String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?)" +
-                    "on duplicate key update answer=?;";
+            //String sql_search = "select * from report where uid=? and lab=?;";
+            //String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, answer) values ( ?, ?, ?, ?, ?, ?)" +
+                    //"on duplicate key update answer=?;";
             String uid = session.getAttribute("ZOSMF_Account").toString();
             for (Map<String, Object> stringObjectMap : req) {
                 String lab = stringObjectMap.get("lab").toString();
@@ -95,18 +101,25 @@ public class StudentsController {
                 if (stringObjectMap.get("answer") != null) {
                     answer = stringObjectMap.get("answer").toString();
                 }
-                String step = stringObjectMap.get("step").toString();
-                String lower_lab = stringObjectMap.get("lower_lab").toString();
-                String question_id = stringObjectMap.get("question_id").toString();
+                answer = answer.substring(0, 15000);
+                int step = Integer.parseInt(stringObjectMap.get("step").toString());
+                int lower_lab = Integer.parseInt(stringObjectMap.get("lower_lab").toString());
+                int question_id = Integer.parseInt(stringObjectMap.get("question_id").toString());
 
-                List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
-                if (result_list.size() == 0) {
-                    jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer, answer);
+                List<ReportEntity> reportEntityList = reportDao.findByUidAndLab(uid, lab);
+                //List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab);
+                if (reportEntityList.size() == 0) {
+                    ReportEntity reportEntity = reportDao.findByUidAndLabAndStepAndLowerLabAndQuestionId(uid, lab, step, lower_lab, question_id);
+                    reportEntity.setAnswer(answer);
+                    reportDao.save(reportEntity);
+                    //jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer, answer);
                 } else {
-                    if (result_list.get(0).get("is_draft").equals("N")) {
+                    if (reportEntityList.get(0).getIsDraft().equals("N")) {
                         throw new ResourceNotFoundException();
                     } else {
-                        jdbcTemplate.update(sql_insert, uid, lab, step, lower_lab, question_id, answer, answer);
+                        ReportEntity reportEntity = reportDao.findByUidAndLabAndStepAndLowerLabAndQuestionId(uid, lab, step, lower_lab, question_id);
+                        reportEntity.setAnswer(answer);
+                        reportDao.save(reportEntity);
                     }
                 }
             }
@@ -125,19 +138,24 @@ public class StudentsController {
             //没有token信息，授权失败
             throw new UnauthorizedException();
         } else {
-            String sql_search = "select * from report where uid=? and lab=? and step=? and lower_lab=?;";
+            //String sql_search = "select * from report where uid=? and lab=? and step=? and lower_lab=?;";
             //String sql_insert = "insert into report (uid, lab, step, lower_lab, question_id, is_drawft) values ( ?, ?, ?, ?, ?, ?, ?);";
             String sql_update = "update report set is_draft=? where uid=? and lab=? and step=? and lower_lab=?";
             //String uid = req.get("uid");
             String lab = req.get("lab");
-            String step = req.get("step");
-            String lower_lab = req.get("lower_lab");
+            int step = Integer.parseInt(req.get("step"));
+            int lower_lab = Integer.parseInt(req.get("lower_lab"));
             String uid = session.getAttribute("ZOSMF_Account").toString();
-            List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab, step, lower_lab);
-            if (result_list.size() == 0) {
+            List<ReportEntity> reportEntityList = reportDao.findByUidAndLabAndStepAndLowerLab(uid, lab, step, lower_lab);
+            //List<Map<String, Object>> result_list = jdbcTemplate.queryForList(sql_search, uid, lab, step, lower_lab);
+            if (reportEntityList.size() == 0) {
                 throw new ResourceNotFoundException();
             } else {
-                jdbcTemplate.update(sql_update, "N", uid, lab, step, lower_lab);
+                for(ReportEntity reportEntity: reportEntityList){
+                    reportEntity.setIsDraft("N");
+                    reportDao.save(reportEntity);
+                }
+                //jdbcTemplate.update(sql_update, "N", uid, lab, step, lower_lab);
             }
             throw new SqlOKException();
         }
@@ -159,11 +177,16 @@ public class StudentsController {
         if (AuthUtil.notLogin(session)) {
             return ResponseEntity.status(401).body("unauthorized");
         } else {
-            String sql_update = "update report set is_draft=? where uid=? and lab=?";
+            //String sql_update = "update report set is_draft=? where uid=? and lab=?";
             String lab = data.get("lab");
             String account = session.getAttribute("ZOSMF_Account").toString();
             //修改数据库中is_draft字段
-            jdbcTemplate.update(sql_update, "N", account, lab);
+            List<ReportEntity> reportEntityList = reportDao.findByUidAndLab(account, lab);
+            for(ReportEntity reportEntity: reportEntityList){
+                reportEntity.setIsDraft("N");
+                reportDao.save(reportEntity);
+            }
+            //jdbcTemplate.update(sql_update, "N", account, lab);
             //将报告生成到已提交报告文件夹下
             File file = new File(pdfBasePath + "submitted/" + account + lab + ".pdf");
             if (!file.exists())
@@ -186,16 +209,17 @@ public class StudentsController {
             return ResponseEntity.status(401).body(null);
         } else {
             String account = session.getAttribute("ZOSMF_Account").toString();
-            String[] labs = {"RACF", "SMS", "CATALOG", "REXX", "MVS"};
-            String sql = "select is_draft from report where uid=? and lab=?";
+            String[] labs = {"RACF", "SMS", "CATALOG", "REXX", "MVS", "SMP"};
+            //String sql = "select is_draft from report where uid=? and lab=?";
             List<Map<String, String>> ans = new ArrayList<>();
             for (String lab : labs) {
-                List<Map<String, Object>> res = jdbcTemplate.queryForList(sql, account, lab);
+                List<ReportEntity> reportEntityList = reportDao.findByUidAndLab(account, lab);
+                //List<Map<String, Object>> res = jdbcTemplate.queryForList(sql, account, lab);
                 Map<String, String> map = new HashMap<>();
                 map.put("lab", lab);
-                if (res.size() == 0) {
+                if (reportEntityList.size() == 0) {
                     map.put("status", "unsaved");
-                } else if (res.get(0).get("is_draft").equals("Y")) {
+                } else if (reportEntityList.get(0).getIsDraft().equals("Y")) {
                     map.put("status", "saved");
                 } else {
                     map.put("status", "submitted");
