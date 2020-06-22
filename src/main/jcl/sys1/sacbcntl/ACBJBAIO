@@ -1,0 +1,173 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//*
+//MYLIB    JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAIO) COMP(DF123): BATCH  - Generates Management    2@E1C*/
+//*                                     class list and Report        */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5650-ZOS                                                     @E1C*/
+//* COPYRIGHT IBM CORP. 2000, 2013                               @E2C*/
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//*                                                                  */
+//* $U0=NAVIQUEST,HDZ11F0,99/07/01,SNJTCS: INITIAL VERSION           */
+//* $E1=STIERS   ,HDZ2210,11/04/15,IBSTG: HSM Storage Tiers      @E1A*/
+//* $E2=OA43011 ,HDZ2210,13/08/06,IBSTG: Fix incorrect copyright @E2A*/
+//********************************************************************
+//*                                                                  *
+//* Sample JCL to generate an ISMF Management Class list, save it,   *
+//* and generate  Management Class report from it.                   *
+//*                                                                  *
+//*   Instructions before submitting:                                *
+//*                                                                  *
+//*       Change JOBCARD if required,                                *
+//*              PREFIX  if required,                                *
+//*              Selection Criteria Parameters to generate list,     *
+//*              Keywords to include/exclude in the report,          *
+//*              userid.                                             *
+//*                                                                  *
+//********************************************************************
+//*                                                                  *
+//* Step to generate Management Class list and save it.              *
+//*                                                                  *
+//*   Parameters following SAVE :-                                   *
+//*                                                                  *
+//*   MCNAMES  - Saved list name        (OUTPUT)                     *
+//*   SCDS     - SCDS dataset name      (Valid SCDS dataset name)    *
+//*                                     (      or 'ACTIVE'      )    *
+//*   MGMTCLAS - Management Class name  (Wild cards allowed)         *
+//*                                                                  *
+//********************************************************************
+//GENMCLST EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAID SAVE MCNAMES +
+SCDS(SCDS) MGMTCLAS(*)) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//* Delete step, to delete the report data set if it exists already  *
+//*                                                                  *
+//********************************************************************
+//DELREPDS EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+ DELETE IBMUSER.MCNAMS.REPORT
+/*
+//********************************************************************
+//*                                                                  *
+//* Step to allocate ISPFILE, where the generated report is saved    *
+//* Note: the data set being allocated should not be a temporary     *
+//*       data set.                                                  *
+//*                                                                  *
+//********************************************************************
+//ALCISPFL EXEC  PGM=IEFBR14
+//ISPFILE  DD    DSN=IBMUSER.MCNAMS.REPORT,DISP=(NEW,CATLG),
+//         BLKSIZE=0,SPACE=(TRK,(3,1)),RECFM=FBA,LRECL=133,UNIT=SYSDA
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+/*
+//********************************************************************
+//*                                                                  *
+//* Report generation step                                           *
+//*                                                                  *
+//*     Parameter following ACBQBARD :-                              *
+//*                                                                  *
+//*       MCNAMES - ISMF saved list name (input)                     *
+//*                                                                  *
+//*     ISPFILE - Management Class report DSN                        *
+//*     SYSIN   - Keywords specifying the data in the report         *
+//*                                                                  *
+//*    The following keywords can be used in the SYSIN DS.           *
+//*                                                                  *
+//*  --------------------------------------------------------        *
+//*   LEN    KEYWORD                  DESC                           *
+//*  --------------------------------------------------------        *
+//*                                                                  *
+//*    9     MGMTCLAS               - Management Class.              *
+//*   10     EXPNONUSE              - Expire Non usage.              *
+//*   11     EXPDATE | EXPDAYS      - Expire Date/Days.              *
+//*    8     RETLMIT                - Retention Limit.               *
+//*   12     PARTIALREL             - Partial Release.               *
+//*    9     PRIMDAYS               - Primary Days.                  *
+//*    8     L1DAYS                 - Level 1 days.                  *
+//*    9     MIGTYPE                - CMD/AUTO Migrate.              *
+//*    9     NOGDGPRI               - # GDG on Primary               *
+//*   11     RLDOFGDSAC             - Rolled off GDS action.         *
+//*   10     BKPFREQ                - Backup frequency.              *
+//*   12     NOBKPSDSE              - # of Backups (DS exists).      *
+//*   13     NOBKPSDSD              - # of Backups (DS deleted).     *
+//*   12     RETDAYSOBKP            - Retain days only backup        *
+//*   14     RETDAYSEBKP            - Retain days extra backup.      *
+//*    9     BKPAUTH                - ADM/USER Backup.               *
+//*    8     AUTOBKP                - Auto backup.                   *
+//*    9     LSTMDUID               - Last modified USERID.          *
+//*   11     LSTMODDATE             - Last date modified             *
+//*   10     LSTMDTIME              - Last time modified.            *
+//*    9     CREYEARS               - Creation years                 *
+//*    9     CREMNTHS               - Creation Months                *
+//*    9     CREDAYS                - Creation days                  *
+//*    9     LTUSEYRS               - Last use years                 *
+//*    9     LTUSEMON               - Last use months                *
+//*    9     LTUSEDAY               - Last use days                  *
+//*    8     MOONDAY                - Monthly on day                 *
+//*   10     QTLYONDAY              - Quarterly on day               *
+//*   10     QTLYONMON              - Quarterly on Month             *
+//*    7     YRLYDAY                - Yearly on day                  *
+//*    9     YRLYMNTH               - Yearly in month                *
+//*   11     NOVERSIONS             - # of versions                  *
+//*   12     RTNOVERSONS            - Retain only Versions           *
+//*   10     RTNOUNIT               - Retain only Unit               *
+//*   13     RTNEVERSIONS           - Retain extra Versions          *
+//*   11     RTNEUNIT               - Retain extra Units             *
+//*    9     CPYSER                 - Copy Serial                    *
+//*   21     BKPCPTECH              - Backup copy technique          *
+//*   21     ABKPCPTECH             - ABACKUP copy technique         *
+//*   19     TRCPYTECH              - Transition Copy Technique  @E1A*
+//*   14     SERIALERREX            - Serialization Error Exit   @E1A*
+//********************************************************************
+//GENMCREP EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//ISPFILE  DD    DSN=IBMUSER.MCNAMS.REPORT,DISP=OLD
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBARD MCNAMES) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//SYSIN    DD    *
+MGMTCLAS
+EXPNONUSE
+EXPDATE
+RETLMIT
+PARTIALREL
+PRIMDAYS
+L1DAYS
+MIGTYPE
+NOGDGPRI
+RLDOFGDSAC
+BKPFREQ
+NOBKPSDSE
+NOBKPSDSD
+TITLE=STATUS OF Management Classes AS ON 07/01/12
+/*
+//********************************************************************
+//*                                                                  *
+//* Copy the Management Class report                                 *
+//*                                                                  *
+//*   SYSUT1 - input (from previous step)                            *
+//*   SYSUT2 - output                                                *
+//*                                                                  *
+//********************************************************************
+//CPYMCREP EXEC  PGM=IEBGENER
+//SYSUT1   DD    DSN=IBMUSER.MCNAMS.REPORT,DISP=SHR
+//SYSUT2   DD    SYSOUT=*
+//SYSIN    DD    DUMMY
+//SYSPRINT DD    SYSOUT=*
+//********************************************************************

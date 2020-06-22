@@ -1,0 +1,139 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//*
+//MYLIB    JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAIW) COMP(DF123): BATCH - Storage Class Report      @A1C*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5694-A01                                                     @W1C*/
+//* COPYRIGHT 2000, 2011  IBM CORP.                              @D1C*/
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//* $U0=NAVIQUEST,HDZ11F0,99/07/01,SNJTCS: INITIAL VERSION           */
+//* $W1=K1H0049  ,HDZ11H0,01/10/04,SNJTCS: Multi-Tiered SG       @W1A*/
+//* $W2=K1H0106  ,HDZ11H0,01/12/28,SNJTCS: Remove s from SGs     @W2A*/
+//* $X1=SMSPAV   ,HDZ11J0,03/04/15,SNJTCS: Support for SMSPAV    @X1A*/
+//* $92=OAMSLVL  ,HDZ1190,06/06/21,IBSTG : Support for OSL       @92A*/
+//* $A1=MULTLCK,HDZ1A10,07/04/27,IBSAS: Support of MULTILOCK     @A1A*/
+//* $D1=BMF    ,HDZ1D10,10/01/29,IBSTG: BMF Disconnect Sphere at @D1A*/
+//*                                     CLOSE                    @D1A*/
+//********************************************************************/
+//*                                                                  *
+//* Sample JCL to generate Storage Class report from a previously    *
+//* saved ISMF Storage Class list.                                   *
+//*                                                                  *
+//*   Instructions before submitting:                                *
+//*                                                                  *
+//*       Change JOBCARD if required,                                *
+//*              PREFIX  if required,                                *
+//*              Keywords to include/exclude in the report,          *
+//*              userid.                                             *
+//*                                                                  *
+//********************************************************************
+//*                                                                  *
+//* Delete step, to delete the report data set if it exists already  *
+//*                                                                  *
+//********************************************************************
+//DELREPDS EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+ DELETE IBMUSER.SCNAMS.REPORT
+/*
+//********************************************************************
+//*                                                                  *
+//* Step to allocate ISPFILE, where the generated report is saved    *
+//* Note: the data set being allocated should not be a temporary     *
+//*       data set.                                                  *
+//*                                                                  *
+//********************************************************************
+//ALCISPFL EXEC  PGM=IEFBR14
+//ISPFILE  DD    DSN=IBMUSER.SCNAMS.REPORT,DISP=(NEW,CATLG),
+//         BLKSIZE=0,SPACE=(TRK,(3,1)),RECFM=FBA,LRECL=133,UNIT=SYSDA
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+/*
+//********************************************************************
+//*                                                                  *
+//* Report generation step                                           *
+//*                                                                  *
+//*     Parameter following ACBQBARH :-                              *
+//*                                                                  *
+//*       SCNAMES - ISMF saved list name (input)                     *
+//*                                                                  *
+//*     ISPFILE - Storage Class report DSN                           *
+//*     SYSIN   - Keywords specifying the data in the report         *
+//*                                                                  *
+//*     The following keywords can be used in SYSIN DS.              *
+//*                                                                  *
+//*   --------------------------------------------------------       *
+//*     LEN       KEYWORD       DESC                                 *
+//*   --------------------------------------------------------       *
+//*                                                                  *
+//*      9        STORCLAS    - Storage Class                        *
+//*      9        DIRRESP     - Direct Response (MSEC)               *
+//*      5        DBIS        - Direct Bias.                         *
+//*      9        SEQRESP     - Sequential Response (MSEC).          *
+//*      5        SBIS        - Sequential bias.                     *
+//*     21        AVALBLTY    - Availability.                        *
+//*     11        GRNTSPC     - Guaranteed space.                    *
+//*      9        LSTMDUID    - Last modified userid.                *
+//*     11        LSTMODDATE  - Last date modified.                  *
+//*     10        LSTMDTIME   - Last time modified.                  *
+//*     11        GRNTSNCWR   - Guaranteed Sync Write.               *
+//*      9        INACCRSP    - Initial access response. .           *
+//*     21        ACCBLTY     - Accessibility.                       *
+//*     15        SUSDATART   - Sustained data rate (MB/Sec)         *
+//*      9        CFCACHE     - CF Cache set name.                   *
+//*     10        CFDIRWT     - CF Direct weight.                    *
+//*     14        CFSEQWT     - CF sequential weight.                *
+//*     10        MULTITSG    - Multi-Tiered SG.                 @X1C*
+//*     11        PAVCAP      - Pav Capability.                  @X1A*
+//*      6        OAMLVL      - OAM Sublevel.                    @92A*
+//*      9        CFLOCK      - CF Lock set name.                @A1A*
+//*     11        DISCSPHERE  - Disconnect Sphere at CLOSE.      @D1A*
+//********************************************************************
+//GENSCREP EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//ISPFILE  DD    DSN=IBMUSER.SCNAMS.REPORT,DISP=OLD
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBARH SCNAMES) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//SYSIN    DD    *
+STORCLAS
+DIRRESP
+DBIS
+SEQRESP
+SBIS
+AVALBLTY
+GRNTSPC
+LSTMDUID
+LSTMODDATE
+LSTMDTIME
+GRNTSNCWR
+INACCRSP
+MULTITSG
+PAVCAP
+OAMLVL
+DISCSPHERE
+TITLE=STATUS OF Storage classes  AS ON 11/01/11
+/*
+//********************************************************************
+//*                                                                  *
+//* Copy the Storage Class report                                    *
+//*                                                                  *
+//*   SYSUT1 - input (from previous step)                            *
+//*   SYSUT2 - output                                                *
+//*                                                                  *
+//********************************************************************
+//CPYSCREP EXEC  PGM=IEBGENER
+//SYSUT1   DD    DSN=IBMUSER.SCNAMS.REPORT,DISP=SHR
+//SYSUT2   DD    SYSOUT=*
+//SYSIN    DD    DUMMY
+//SYSPRINT DD    SYSOUT=*
+//********************************************************************

@@ -1,0 +1,53 @@
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO PERFORM ISMF ACS VALIDATE IN BATCH                 *
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*      CHANGE JOBCARD                                              *
+//*      CHANGE PREFIX                                               *
+//*      CHANGE PARAMETERS                                           *
+//*                                                                  *
+//********************************************************************
+//********************************************************************
+//*                                                                  *
+//*   VALIDATE STEP:                                                 *
+//*                                                                  *
+//*    SCDSNAME - NAME OF SCDS THAT CONTAINS THE TRANSLATED ACS      *
+//*               ROUTINES TO BE VALIDATED (INPUT)                   *
+//*    TYPE     - TYPE OF ACS ROUTINE TO BE VALIDATED (INPUT)        *
+//*    LISTNAME - VALIDATE LISTING (OUTPUT)                          *
+//*    UPDHLVLSCDS - When modifying an SCDS, that was formatted with *
+//*                  a higher level of SMS, using a lower level of   *
+//*                  SMS will make this application fail unless you  *
+//*                  specify the UPDHLVLSCDS parameter as 'Y'.       *
+//*                  Default is 'N'.                         @WA41441*
+//*                                                                  *
+//*                  Possible values : Y/N/BLANK             @WA41441*
+//********************************************************************
+//VALIDAT  EXEC ACBJBAOB,
+//         PLIB1='SYS1.DGTPLIB',
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+DEL VALIDAT.LISTING
+ISPSTART CMD(ACBQBAO2 +
+SCDSNAME(DSNREPN) TYPE(*) +
+LISTNAME(VALIDAT.LISTING) +
+UPDHLVLSCDS()) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//* COPY THE VALIDATE LISTING DATA SET                               *
+//*                                                                  *
+//*    SYSUT1 - INPUT (FROM PREVIOUS STEP)                           *
+//*    SYSUT2 - OUTPUT                                               *
+//*                                                                  *
+//********************************************************************
+//STEP2  EXEC  PGM=IEBGENER
+//SYSUT1   DD  DSN=IBMUSER.VALIDAT.LISTING,DISP=SHR
+//SYSUT2   DD  SYSOUT=*
+//SYSIN    DD  DUMMY
+//SYSPRINT DD  SYSOUT=*
+//********************************************************************

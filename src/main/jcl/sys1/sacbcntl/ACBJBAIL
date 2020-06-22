@@ -1,0 +1,207 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//*
+//MYLIB    JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAIL) COMP(DF123): BATCH  - Generates Data class     @Y2C*/
+//*                                         list and Report          */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5650-ZOS                                                         */
+//* COPYRIGHT IBM CORP. 2000,2013                                    */
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//* $U0=NAVIQUEST,HDZ11F0,99/07/01,SNJTCS: INITIAL VERSION           */
+//* $U1=OW44570,HDZ11F0,033000,TCS: Block Size Limit Support     @U1A*/
+//* $V1=DCE    ,HDZ11G0,01/01/02,TCS: Dyn Vol Cnt & RLS Support  @V1A*/
+//* $U2=OW50676,HDZ11F0,080201,TCS: CICSVR Support               @U2A*/
+//* $W1=OA02198,HDZ11H0,03/09/01,TCS: Ventana support            @W1A*/
+//* $Y1=K1K0170,HDZ11K0,04/03/15,SNJTCS: VSAM Extent Constraint  @Y1A*/
+//*                       Removal and RLS Above 2-GB Bar Support @Y1A*/
+//* $Y2=OA13101,HDZ11K0,05/08/29,SNJTCS: SUPPORT OF VENTANA-3    @Y2A*/
+//* $90=VSAMSMB,HDZ1190,06/05/31,IBSTG : SUPPORT OF VSAM SMB     @90A*/
+//* $A0=SMPO   ,HDZ1A10,07/05/02,IBSTG: SMPO Support             @A0A*/
+//* $B1=EAV2   ,HDZ1B10,08/06/10,IBSTG: EATTR keyword support    @B1A*/
+//* $C1=CARECL ,HDZ1C10,09/03/12,IBSTG: CA Reclaim support       @C1A*/
+//* $D1=OA38205,HDZ1D10,12/01/16,SVLCY: Log Replicate support    @D1A*/
+//* $E1=SMBENH ,HDZ2210,12/08/03,SVLCY: SMB RAB/RMODE31 SUPPORT  @E1A*/
+//********************************************************************
+//*                                                                  *
+//* Sample JCL to generate an ISMF Data Class list, save it, and     *
+//* generate  Data Class report from it.                             *
+//*                                                                  *
+//*   Instructions before submitting:                                *
+//*                                                                  *
+//*       Change JOBCARD if required,                                *
+//*              PREFIX  if required,                                *
+//*              Selection Criteria Parameters to generate list,     *
+//*              Keywords to include/exclude in the report,          *
+//*              userid.                                             *
+//*                                                                  *
+//********************************************************************
+//*                                                                  *
+//* Step to generate Data Class list and save it                     *
+//*                                                                  *
+//*   Parameters following SAVE :-                                   *
+//*                                                                  *
+//*   DCNAMES  - Saved list name        (OUTPUT)                     *
+//*   SCDS     - SCDS dataset name      (Valid SCDS dataset name)    *
+//*                                     (      or 'ACTIVE'      )    *
+//*   DATACLAS - Data Class name        (Wild cards allowed)         *
+//*                                                                  *
+//********************************************************************
+//GENDCLST EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAIC SAVE DCNAMES +
+SCDS(SCDS) DATACLAS(*)) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//* Delete step, to delete the report data set if it exists already  *
+//*                                                                  *
+//********************************************************************
+//DELREPDS EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+ DELETE IBMUSER.DCNAMS.REPORT
+/*
+//********************************************************************
+//*                                                                  *
+//* Step to allocate ISPFILE, where the generated report is saved    *
+//* Note: The data set being allocated should not be a temporary     *
+//*       data set.                                                  *
+//*                                                                  *
+//********************************************************************
+//ALCISPFL EXEC  PGM=IEFBR14
+//ISPFILE  DD    DSN=IBMUSER.DCNAMS.REPORT,DISP=(NEW,CATLG),
+//         BLKSIZE=0,SPACE=(TRK,(3,1)),RECFM=FBA,LRECL=133,UNIT=SYSDA
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+/*
+//********************************************************************
+//*                                                                  *
+//* Report Generation step                                           *
+//*                                                                  *
+//*     Parameter following ACBQBARB :-                              *
+//*                                                                  *
+//*       DCNAMES - ISMF saved list name (input)                     *
+//*                                                                  *
+//*     ISPFILE - Data Class report DSN                              *
+//*     SYSIN   - Keywords specifying the data in the report         *
+//*                                                                  *
+//*     The following keywords can be used in the SYSIN DS.          *
+//*                                                                  *
+//*  ------------------------------------------------------------    *
+//*    LEN    KEYWORD                  DESC                          *
+//*  ------------------------------------------------------------    *
+//*                                                                  *
+//*     9     DATACLAS               - Data Class.                   *
+//*     7     RECORG                 - Record Organization.          *
+//*     6     RECFM                  - Record Format.                *
+//*     6     LRECL                  - Logical Record Length.        *
+//*     7     KEYLEN                 - Key Length.                   *
+//*     7     KEYOFF                 - Key offset.                   *
+//*     7     AVGREC                 - Average record length.        *
+//*     6     AVGVL                  - Average value.                *
+//*     8     SPCEPRI                - Space Primary.                *
+//*    10     SPACESEC               - Space Secondary.              *
+//*    10     SPACEDIR               - Space Directory.              *
+//*    11     EXPDATE  | RETNPRD     - Retention period/exp date.    *
+//*     7     VOLCNT                 - Volume count.                 *
+//*    11     ADDVOLAMNT             - Additional Volume amount.     *
+//*     7     MAXVOL                 - Dynamic Volume Count      @90C*
+//*     9     SMBVSP                 - System Managed Buffer     @90C*
+//*     7     CISIZE                 - CIsize data.                  *
+//*     9     PERFSPCA               - % Free Space CA.              *
+//*     9     PERFSPCI               - % Free Space CI.              *
+//*     8     SHRXRGN                - Share X Region.               *
+//*     8     SHRXSYS                - Share X System.               *
+//*     9     LSTMDUID               - Last modified userid.         *
+//*    11     LSTMODDATE             - Last modified date.           *
+//*    10     LSTMDTIME              - Last modified time.           *
+//*    19     DSNTYPE                - Dataset name type.            *
+//*    15     XADDR                  - Extended addressability.      *
+//*    11     COMPACTION             - Compaction.                   *
+//*     9     MEDTYP                 - Media type.               @Y2C*
+//*    11     RECTECH                - Recording Technology.         *
+//*     8     PEFSCLG                - Performance Scaling.      @Y2C*
+//*     8     PERFSEG                - Performance Segmentation  @Y2A*
+//*     7     REUSE                  - Reuse.                        *
+//*     9     INILOAD                - Initial Load.                 *
+//*    11     SPANSTAT               - Spanned/Non Spanned.          *
+//*     9     BWO                    - BWO.                          *
+//*     7     LOG                    - LOG.                          *
+//*    27     LOGSTID                - Log Stream Id.                *
+//*    10     SPCCONREL              - Space constraint relief.      *
+//*     8     REDSPC                 - Reduce space up to %.         *
+//*     8     RECABIS                - Record Access Bias.           *
+//*    11     BLKSZLIM               - Block Size Limit.         @U1A*
+//*     7     FRLOG                  - Frlog.                    @W1C*
+//*    12     RLSCF                  - RLS CF Cache Value.       @V1A*
+//*                                                              @90D*
+//*     8     EXTCONS                - Extent Constraint Removal.@Y1A*
+//*    10     RLSABOVE               - RLS Above the 2-GB Bar.   @Y1A*
+//*    10     OVERRIDE               - Override Space.           @A0A*
+//*     5     SDB                    - System Determ Blocksize.  @A0A*
+//*     6     EATTR                  - EATTR.                    @B1A*
+//*    10     RECLAIMCA              - CA Reclaim.               @C1A*
+//*     8     LOGREPL                - Log Replicate.            @D1A*
+//*     8     RMODE31                - RMODE31.                  @E1A*
+//********************************************************************
+//GENDCREP EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//ISPFILE  DD    DSN=IBMUSER.DCNAMS.REPORT,DISP=OLD
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBARB DCNAMES) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//SYSIN    DD    *
+DATACLAS
+RECORG
+RECFM
+LRECL
+KEYLEN
+KEYOFF
+AVGREC
+AVGVL
+SPCEPRI
+SPACESEC
+SPACEDIR
+EXPDATE
+VOLCNT
+ADDVOLAMNT
+MAXVOL
+SMBVSP
+FRLOG
+RLSCF
+PEFSCLG
+PERFSEG
+OVERRIDE
+SDB
+EATTR
+RECLAIMCA
+LOGREPL
+RMODE31
+TITLE=STATUS OF Data Classes  AS ON 12/01/12
+/*
+//********************************************************************
+//*                                                                  *
+//* Copy the Data class report                                       *
+//*                                                                  *
+//*   SYSUT1 - input (from previous step)                            *
+//*   SYSUT2 - output                                                *
+//*                                                                  *
+//********************************************************************
+//CPYDCREP EXEC  PGM=IEBGENER
+//SYSUT1   DD    DSN=IBMUSER.DCNAMS.REPORT,DISP=SHR
+//SYSUT2   DD    SYSOUT=*
+//SYSIN    DD    DUMMY
+//SYSPRINT DD    SYSOUT=*
+//********************************************************************

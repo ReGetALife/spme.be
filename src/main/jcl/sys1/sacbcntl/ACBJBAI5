@@ -1,0 +1,123 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//MYLIB JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAI5) COMP(DF123): BATCH  - GENERATES VOLUME LIST    @A0C*/
+//*                                                                  */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5694-A01                                                    2@A0C*/
+//* COPYRIGHT 1996,2011  IBM CORP.                                   */
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//*$K0=NAVIQUEST,HACS110,95/08/04,SNJADR: INITIAL VERSION        @K0A*/
+//*$K1=KNQ0003,HACS110,95/08/04,SNJTCS: COMMENT CORRECTION       @K1C*/
+//*$L0=NAVIQUEST,HACS120,96/06/18,SNJTCS: RELEASE 2 CHANGES      @L0A*/
+//*10/14/96 CCY - HDZ11C0: Ship as SPE                       @WA22861*/
+//*09/19/97 TCS - HDZ11D0: In VOL application, to remove the @WA29014*/
+//*   error message ' SPECIFY ONLY 1 KEYWORD PER LINE '      @WA29014*/
+//* $T2=k150142,HDZ11E0,111997,SNJTCS: Adding TABL2 parameter    @T2A*/
+//*$U1=NaviQuest,HDZ11F0,99/08/04,SNJTCS: NQ Enhancements for   2@U1A*/
+//*                                       DFSMS/MVS ISMF V2R10       */
+//*$A0=EAV   ,HDZ1A10,06/09/27,IBSTG : EAV Support               @A0A*/
+//*$C1=OA34489,HDZ1C10,10/10/06,IBSTG: Add comment, insufficient @C1A*/
+//*                                    storage                   @C1A*/
+//*$D1=OA38673,HDZ1D10,11/11/28,IBSTG: Support of SMA SPE        @D1A*/
+//*                                                                  */
+//********************************************************************/
+//********************************************************************
+//*                                                                  *
+//* SAMPLE JCL TO GENERATE ISMF DASD VOLUME LIST IN BATCH AND SAVE IT*
+//*                                                                  *
+//*   INSTRUCTIONS BEFORE SUBMITTING:                                *
+//*                                                                  *
+//*      CHANGE JOBCARD                                              *
+//*      CHANGE PREFIX                                               *
+//*      CHANGE PARAMETERS                                           *
+//*                                                            12@C1A*
+//*      INCREASE THE REGION SIZE IN ACBJBAOB IF YOU DO NOT HAVE     *
+//*      ENOUGH VIRTUAL STORAGE TO GENERATE DASD VOLUME LIST.        *
+//*      FOR EXAMPLE, THE FOLLOWING ISMF REASON CODES INDICATE       *
+//*      INSUFFICIENT STORAGE (SEE ISPF LOG):                        *
+//*      REASON CODE (3037),                                         *
+//*      REASON CODE (3258).                                         *
+//*      THE REQUIRED REGION SIZE DEPENDS ON THE NUMBER OF VOLUMES   *
+//*      ENTRIES AND CAN BE ESTIMATED ON THE BASIS OF 10K FOR EACH   *
+//*      VOLUME ENTRY (THIS DATA IS APPROXIMATE AND CAN VARY ON      *
+//*      DIFFERENT SYSTEMS. SET REGION=(0M) TO HAVE ALL STORAGE      *
+//*      AVAILABLE).                                                 *
+//*                                                                  *
+//*   PARAMETERS:                                                    *
+//*                                                   36A/C @WA29014 *
+//*   PARAMETER FOLLOWING SAVE - NAME OF SAVED LIST (OUTPUT)         *
+//*   ALLOCSP   - 0 to 99999999 followed by K (kilobytes) or     @A0C*
+//*               M (megabytes). If K or M aren't specified     2@A0A*
+//*               the value will be defaulted to K.                  *
+//*   ALSPTRK   - 0 to 99999999 followed by K (kilobytes) or    3@A0A*
+//*               M (megabytes). If K or M aren't specified          *
+//*               the value will be defaulted to K.                  *
+//*   CDSNAME   - Control Dataset Name                               *
+//*   CFVOLST   - CF Volume status ENABLED/QUIESCING/QUIESCED    @U1A*
+//*   CFWSTAT   - ACTIVE/INACTIVE/NONE/PENDING/PINNED                *
+//*   DEVTYPE   - 3380/3390/9345                                     *
+//*             - Installation defined esoteric names(like SYSDA ..) *
+//*   DFWSTAT   - ACTIVE/INACTIVE/NONE/PENDING/PINNED                *
+//*   DUPLXSTAT - NONE / PPRI-FAI / PPRI-PEN / PPRI-SUS / PPRIMARY/  *
+//*               PRI-PEN / PRI-SUS / PRIMARY / PSEC-FAI / PSEC-PEN/ *
+//*               PSEC-SUS /PSECNDRY/ SEC-PEN  / SEC-SUS / SECONDRY/ *
+//*               SIMPLEX / SPAR-BRK / SPAR-PEN / SPARE              *
+//*   FRAG      - 1 to 999                                           *
+//*   FREEDSCB  - 0 to 99999                                         *
+//*   FREESPC   - 0 to 99999999 followed by K (kilobytes) or     @A0C*
+//*               M (megabytes). If K or M aren't specified     2@A0A*
+//*               the value will be defaulted to K.                  *
+//*   FRSPTRK   - 0 to 99999999 followed by K (kilobytes) or    3@A0A*
+//*               M (megabytes). If K or M aren't specified          *
+//*               the value will be defaulted to K.                  *
+//*   FREESPC%  - 0 to 100 (with no % sign)                          *
+//*   FREEVIR   - 0 to 99999                                         *
+//*   FREEXT    - 0 to 9999999                                   @A0C*
+//*   FROMDEV   - 1 to 4 HexaDecimal digits                          *
+//*   INDEX     - DISABLED/ENABLED/NONE                              *
+//*   INIASRES  - Initialized as Reserved (YES / NO)             @D1A*
+//*   LASTDEV   - 1 to 4 HexaDecimal digits (should be >= FROMDEV)   *
+//*   LISTTYP   - Inclusive/Exclusive or I/E                    3@U1A*
+//*               Inclusive: Display list by Inclusive criteria      *
+//*               Exclusive: Display list by Enclusive criteria      *
+//*   LRGEXT    - 1 to 99999999 followed by K (kilobytes) or     @A0C*
+//*               M (megabytes). If K or M aren't specified     2@A0A*
+//*               the value will be defaulted to K.                  *
+//*   LGEXTRK   - 1 to 99999999 followed by K (kilobytes) or    3@A0C*
+//*               M (megabytes). If K or M aren't specified          *
+//*               the value will be defaulted to K.                  *
+//*   OTHERDEV  - 1 to 4 Hex Decimal digits                          *
+//*   OWNERID   - Owner ID, 1 to 14 characters                   @D1A*
+//*   PHYDATA   - Y / N                                              *
+//*   PHYSTAT   - CONVERT/INITIAL/NONSMS/UNKNOWN                     *
+//*   QSAVE     - Query Name to be saved                             *
+//*   QUERY     - Query Name to be used                              *
+//*   RDCACHE   - ACTIVE/INACTIVE/NONE/PENDING                       *
+//*   SHRDASD   - YES / NO                                           *
+//*   SOURCEGL  - 1 / 2 (2-New List)                                 *
+//*   SOURCENL  - 1 / 2 (1-Physical, 2-SMS)                          *
+//*   SPCDATA   - Y / N                                              *
+//*   STORGRP   - Stotage Group name (SMS only)                      *
+//*   SUBSYSID  - 0001 to FFFF (in HexaDecimal)                      *
+//*   USEATTR   - PRIV/PUB/STOR                                      *
+//*   VOL       - Volume serial                                      *
+//*   VOLSTYPE  - 1 / 2 / 3 (1-On Line 2-Not On Line 3-Either)       *
+//*                                                                  *
+//********************************************************************
+//GENLIST EXEC ACBJBAOB,
+//        PLIB1=SYS1.DGTPLIB,
+//        TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAI4 +
+SAVE DASDLST +
+SPCDATA(Y) PHYDATA(Y) +
+VOL(*) INDEX(EQ DISABLED)) +
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************

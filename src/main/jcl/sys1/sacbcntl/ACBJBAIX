@@ -1,0 +1,212 @@
+//IBMUSERA JOB (ACCT),'IBMUSER',MSGCLASS=H,
+//      NOTIFY=IBMUSER,CLASS=A,MSGLEVEL=(1,1),TIME=(0,10)
+//*
+//MYLIB    JCLLIB ORDER=SYS1.SACBCNTL
+//********************************************************************/
+//*$MAC(ACBJBAIX) COMP(DF123): BATCH  - Generates Storage Group      */
+//*                                         list and Report          */
+//* PROPRIETARY V3 STATEMENT                                         */
+//* LICENSED MATERIALS - PROPERTY OF IBM                             */
+//* 5650-ZOS                                                     @E1C*/
+//* COPYRIGHT IBM CORP. 2000, 2013                                   */
+//* END PROPRIETARY V3 STATEMENT                                     */
+//*                                                                  */
+//* CHANGE ACTIVITY:                                                 */
+//*                                                                  */
+//* $U0=NAVIQUEST,HDZ11F0,99/07/01,SNJTCS: INITIAL VERSION           */
+//* $V1=SGName,HDZ11G0,00/09/19,TCS: Overflow and              2@V1A */
+//*                                     Extend SG Name Support       */
+//* $W1=COPY POOL,HDZ11H0,02/01/02,TCS: Copy Pool Backup       2@W1A */
+//*                                    SG Name Support               */
+//* $Z1=OA16354,HDZ1180,06/06/13,TCS: SG MBTOTAL, MBFREE        @Z1A */
+//*                                       Field Length increase @Z1A */
+//* $A0=EAV   ,HDZ1A10,06/09/27,IBSTG : EAV Support             @A0A */
+//* $90=KFI0424,HDZ1190,07/01/24,IBSTG: Add SG TYPE             @90A */
+//* $B1=OAME   ,HDZ1B10,08/06/06,IBSTG: OAM Enhancements        @B1A */
+//* $D1=SPACEGB,HDZ1D10,10/03/26,IBSTG: Space Info in GB Support @D1A*/
+//* $E1=STIERS ,HDZ2210,11/04/15,IBSTG: HSM STORAGE TIERS        @E1A*/
+//* $E2=SMAPH2 ,HDZ2210,11/06/21,IBSTG: SMA Phase 2              @E2A*/
+//* $E3=SMARMLV,HDZ2210,12/05/12,IBSTG: Back out SMA Support     @E3A*/
+//********************************************************************
+//*                                                                  *
+//* Sample JCL to generate an ISMF Storage Group list, save it, and  *
+//* generate  Storage Group report from it.                          *
+//*                                                                  *
+//*   Instructions before submitting:                                *
+//*                                                                  *
+//*       Change JOBCARD if required,                                *
+//*              PREFIX  if required,                                *
+//*              Selection Criteria Parameters to generate list,     *
+//*              Keywords to include/exclude in the report,          *
+//*              userid.                                             *
+//*                                                                  *
+//********************************************************************
+//*                                                                  *
+//* Step to generate Storage Group list and save it                  *
+//*                                                                  *
+//*   Parameters following SAVE :-                                   *
+//*                                                                  *
+//*   SGNAMES - Saved list name         (Output)                     *
+//*   SCDS    - SCDS dataset name       (Valid SCDS dataset name)    *
+//*                                     (      or 'ACTIVE'      )    *
+//*   STORGRP - Storage Group name      (Wild cards allowed)         *
+//*   STGTYPE - Storage Group type                              3@90A*
+//*             Possible values : VIO/POOL/DUMMY/COPY POOL BACKUP/   *
+//*                               OBJECT/OBJECT BACKUP/TAPE/BLANK    *
+//*                                                             8@D1A*
+//*   SPACEGB - Space Info in GB (space information TOTALSPC and     *
+//*             FREESPC are shown in gigabytes or megabytes for      *
+//*             storage groups in the Active Control Data Set only). *
+//*             Possible values : Y - space information in gigabytes *
+//*                                   (1G to 99999999G).             *
+//*                               N - space information in megabytes *
+//*                                   (1 to 999999999).              *
+//********************************************************************
+//GENSGLST EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBAIG SAVE SGNAMES +
+SCDS(SCDS) STORGRP(*) STGTYPE(POOL) SPACEGB(N))+
+NEWAPPL(DGT) BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//********************************************************************
+//*                                                                  *
+//* Delete step, to delete the report data set if it exists already  *
+//*                                                                  *
+//********************************************************************
+//DELREPDS EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+ DELETE IBMUSER.SGNAMS.REPORT
+/*
+//********************************************************************
+//*                                                                  *
+//* Step to allocate ISPFILE, where the generated report is saved    *
+//* Note: the data set being allocated should not be a temporary     *
+//*       data set.                                                  *
+//*                                                                  *
+//********************************************************************
+//ALCISPFL EXEC  PGM=IEFBR14
+//ISPFILE  DD    DSN=IBMUSER.SGNAMS.REPORT,DISP=(NEW,CATLG),
+//         BLKSIZE=0,SPACE=(TRK,(3,1)),RECFM=FBA,LRECL=133,UNIT=SYSDA
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+/*
+//********************************************************************
+//*                                                                  *
+//* Report generation step                                           *
+//*                                                                  *
+//*     Parameter following ACBQBARJ :-                              *
+//*                                                                  *
+//*       SGNAMES - ISMF saved list name (input)                     *
+//*                                                                  *
+//*     ISPFILE - Storage Group report DSN                           *
+//*     SYSIN   - Keywords specifying the data in the report         *
+//*                                                                  *
+//*     The following keywords can be used in SYSIN DS.              *
+//*                                                                  *
+//*   --------------------------------------------------------       *
+//*     LEN       KEYWORD         DESC                               *
+//*   --------------------------------------------------------       *
+//*                                                                  *
+//*      9        STORGRP      -  Storage Group.                     *
+//*     17        SGTYPE       -  Storage Group Type.                *
+//*      8        VIOMXSZ      -  VIO Maximum Size.                  *
+//*      5        VIOU         -  VIO Unit.                          *
+//*      9        AUTOMIG      -  Auto Migrate.                      *
+//*     15        MIGSYS       -  Migrate System/Sys Group.          *
+//*      5        ABCK         -  Auto Back.                         *
+//*     14        BKPSYS       -  Backup System/Sys Group.           *
+//*      5        ADMP         -  Auto Dump.                         *
+//*     13        DUMPSYS      -  Dump System/Sys Group.             *
+//*      5        MIGH         -  Migr High.                         *
+//*      5        MIGL         -  Migr Low.                          *
+//*     10        TOTALSPC     -  MB/GB total space.             @D1C*
+//*     10        FREESPC      -  MB/GB free space.              @D1C*
+//*      7        PERFSP       -  Percentage free space.             *
+//*      9        LSTMODID     -  Last modified USERID.              *
+//*     11        LSTMODDATE   -  Last DATE modified.                *
+//*     11        LSTMODTIME   -  Last TIME modified.                *
+//*      9        DMPCLAS1     -  Dump Class.                        *
+//*      9        DMPCLAS2     -  Dump Class.                        *
+//*      9        DMPCLAS3     -  Dump Class.                        *
+//*      9        DMPCLAS4     -  Dump Class.                        *
+//*      9        DMPCLAS5     -  Dump Class.                        *
+//*     12        GRNTBKPFREQ  -  Guaranteed BKP frequency.          *
+//*     10        QUALIFIER    -  Qualifier.                         *
+//*     11        CYCLSTTIME   -  Cycle Start time.                  *
+//*      9        CYCLENTM     -  Cycle End time.                    *
+//*      9        LIBNAME1     -  Library Name.                      *
+//*      9        LIBNAME2     -  Library Name.                      *
+//*      9        LIBNAME3     -  Library Name.                      *
+//*      9        LIBNAME4     -  Library Name.                      *
+//*      9        LIBNAME5     -  Library Name.                      *
+//*      9        LIBNAME6     -  Library Name.                      *
+//*      9        LIBNAME7     -  Library Name.                      *
+//*      9        LIBNAME8     -  Library Name.                      *
+//*     12        VOLFULLTHRS  -  Volume full threshold.             *
+//*     12        DRVSTRTTHRS  _  Drive start threshold.             *
+//*     15        VOLFULWRTERR _  Volume full at write err.          *
+//*      9        OSMCSYS      _  OSMC System.                       *
+//*      9        OVRFLOW      _  Overflow.                 2@V1A    *
+//*      9        EXTSGNM      _  Extend SG Name.                    *
+//*      9        CPBSGN       _  Copy Pool Backup SG Name    @W1A   *
+//*      7        BREAKPT      _  BreakPointValue.              3@A0A*
+//*      7        TRKHITHRS    -  Migr High TRK.                     *
+//*      7        TRKLOWTHRS   -  Migr Low TRK.                      *
+//*     10        OAMDELPRO    -  OAM Deletion Protection.      2@B1A*
+//*     10        OAMRETPRO    -  OAM Retention Protection.          *
+//*     10        PROCPRIOR    -  Processing Priority.           @E1A*
+//********************************************************************
+//GENSGREP EXEC  ACBJBAOB,
+//         PLIB1=SYS1.DGTPLIB,
+//         TABL2=userid.TEST.ISPTABL
+//ISPFILE  DD    DSN=IBMUSER.SGNAMS.REPORT,DISP=OLD
+//SYSTSIN  DD    *
+PROFILE PREFIX(IBMUSER)
+ISPSTART CMD(ACBQBARJ SGNAMES) +
+BATSCRW(132) BATSCRD(27) BREDIMAX(3) BDISPMAX(99999999)
+/*
+//SYSIN    DD    *
+STORGRP
+SGTYPE
+VIOMXSZ
+VIOU
+AUTOMIG
+MIGSYS
+ABCK
+BKPSYS
+ADMP
+DUMPSYS
+OVRFLOW
+EXTSGNM
+CPBSGN
+MIGH
+MIGL
+TOTALSPC
+FREESPC
+PERFSP
+BREAKPT
+TRKHITHRS
+TRKLOWTHRS
+OAMDELPRO
+OAMRETPRO
+PROCPRIOR
+TITLE=STATUS OF Storage Group  AS ON 13/01/10
+/*
+//********************************************************************
+//*                                                                  *
+//* Copy the Storage Group report                                    *
+//*                                                                  *
+//*   SYSUT1 - input (from previous step)                            *
+//*   SYSUT2 - output                                                *
+//*                                                                  *
+//********************************************************************
+//CPYSGREP EXEC  PGM=IEBGENER
+//SYSUT1   DD    DSN=IBMUSER.SGNAMS.REPORT,DISP=SHR
+//SYSUT2   DD    SYSOUT=*
+//SYSIN    DD    DUMMY
+//SYSPRINT DD    SYSOUT=*
+//********************************************************************
